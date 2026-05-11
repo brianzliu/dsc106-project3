@@ -13,6 +13,16 @@ export function renderLegend(container, { title, type = 'sequential', scale, col
     return;
   }
 
+  if (type === 'categories') {
+    const list = container.append('div').attr('class', 'category-legend');
+    colors.forEach(([name, color]) => {
+      const row = list.append('div').attr('class', 'category-row');
+      row.append('span').attr('class', 'category-swatch').style('background', color);
+      row.append('span').attr('class', 'category-label').text(name);
+    });
+    return;
+  }
+
   const width = 180;
   const height = 12;
   const id = `grad-${Math.random().toString(36).slice(2)}`;

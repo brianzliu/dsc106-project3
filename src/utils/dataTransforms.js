@@ -1,7 +1,36 @@
+import { geoArea } from 'd3';
+
 export function finiteNumber(value) {
   if (value === null || value === undefined || value === '') return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
+}
+
+function reverseRing(ring) {
+  return [...ring].reverse();
+}
+
+function reverseGeometry(geometry) {
+  if (!geometry) return geometry;
+  if (geometry.type === 'Polygon') {
+    return {
+      ...geometry,
+      coordinates: geometry.coordinates.map(reverseRing)
+    };
+  }
+  if (geometry.type === 'MultiPolygon') {
+    return {
+      ...geometry,
+      coordinates: geometry.coordinates.map((polygon) => polygon.map(reverseRing))
+    };
+  }
+  return geometry;
+}
+
+export function normalizeGeometry(geometry) {
+  if (!geometry) return geometry;
+  const feature = { type: 'Feature', properties: {}, geometry };
+  return geoArea(feature) > Math.PI * 2 ? reverseGeometry(geometry) : geometry;
 }
 
 export function combineLandConversion(row) {
@@ -139,6 +168,7 @@ export function prepareRows(rawRows) {
       cell_id: row.cell_id ?? `cell-${index}`,
       lat: finiteNumber(row.lat),
       lon: finiteNumber(row.lon),
+      geometry: normalizeGeometry(row.geometry),
       land_conversion_change: combineLandConversion(row),
       __components: {}
     }));

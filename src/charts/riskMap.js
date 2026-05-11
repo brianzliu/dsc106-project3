@@ -17,9 +17,12 @@ export function renderRiskMap({ svg, legend, rows, width, height, ...handlers })
     .sort((a, b) => b.carbon_fragility_score - a.carbon_fragility_score)
     .slice(0, 3);
 
-  const labels = svg.selectAll('g.hotspot-label').data(hotspots, (d) => d.cell_id);
+  // Append labels inside the zoom group so they pan/zoom with the cells.
+  const root = svg.select('g.map-root');
+  const target = root.empty() ? svg : root;
+  const labels = target.selectAll('g.hotspot-label').data(hotspots, (d) => d.cell_id);
   const enter = labels.enter().append('g').attr('class', 'hotspot-label');
-  enter.append('line').attr('stroke', '#111827').attr('stroke-width', 1.2);
+  enter.append('line').attr('stroke', '#111827').attr('stroke-width', 1.2).attr('vector-effect', 'non-scaling-stroke');
   enter.append('text').attr('class', 'callout-text');
   labels.merge(enter).each(function(row, index) {
     const [x, y] = projection([row.lon, row.lat]);
