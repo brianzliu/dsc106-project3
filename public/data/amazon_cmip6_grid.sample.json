@@ -1,0 +1,1442 @@
+[
+  {
+    "cell_id": "demo-01",
+    "lat": -4,
+    "lon": -68,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -68.75,
+            -4.75
+          ],
+          [
+            -67.25,
+            -4.75
+          ],
+          [
+            -67.25,
+            -3.25
+          ],
+          [
+            -68.75,
+            -3.25
+          ],
+          [
+            -68.75,
+            -4.75
+          ]
+        ]
+      ]
+    },
+    "region": "northwest",
+    "crop_early": 0.02,
+    "crop_late": 0.0263,
+    "crop_change": 0.006,
+    "pasture_early": 0.05,
+    "pasture_late": 0.0577,
+    "pasture_change": 0.008,
+    "land_conversion_change": 0.014,
+    "tas_early": 26.0,
+    "tas_late": 26.56,
+    "tas_change": 0.56,
+    "tasmax_early": 32.0,
+    "tasmax_late": 32.82,
+    "tasmax_change": 0.82,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 2.32,
+    "pr_dry_change": -0.08,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 119.03,
+    "mrsos_dry_change": -0.97,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 77.4,
+    "hurs_dry_change": -0.6,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 3.26,
+    "evspsbl_change": 0.06,
+    "lai_early": 4.4,
+    "lai_late": 4.43,
+    "lai_change": 0.03,
+    "gpp_early": 8.5,
+    "gpp_late": 8.61,
+    "gpp_change": 0.11,
+    "nbp_early": 0.35,
+    "nbp_late": 0.37,
+    "nbp_change": 0.02,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-02",
+    "lat": -2,
+    "lon": -66,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -66.75,
+            -2.75
+          ],
+          [
+            -65.25,
+            -2.75
+          ],
+          [
+            -65.25,
+            -1.25
+          ],
+          [
+            -66.75,
+            -1.25
+          ],
+          [
+            -66.75,
+            -2.75
+          ]
+        ]
+      ]
+    },
+    "region": "northwest",
+    "crop_early": 0.02,
+    "crop_late": 0.0281,
+    "crop_change": 0.008,
+    "pasture_early": 0.05,
+    "pasture_late": 0.05990000000000001,
+    "pasture_change": 0.01,
+    "land_conversion_change": 0.018,
+    "tas_early": 26.0,
+    "tas_late": 26.58,
+    "tas_change": 0.58,
+    "tasmax_early": 32.0,
+    "tasmax_late": 32.84,
+    "tasmax_change": 0.84,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 2.32,
+    "pr_dry_change": -0.08,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 118.98,
+    "mrsos_dry_change": -1.02,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 77.37,
+    "hurs_dry_change": -0.63,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 3.26,
+    "evspsbl_change": 0.06,
+    "lai_early": 4.4,
+    "lai_late": 4.42,
+    "lai_change": 0.02,
+    "gpp_early": 8.5,
+    "gpp_late": 8.59,
+    "gpp_change": 0.09,
+    "nbp_early": 0.35,
+    "nbp_late": 0.37,
+    "nbp_change": 0.02,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-03",
+    "lat": 0,
+    "lon": -64,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -64.75,
+            -0.75
+          ],
+          [
+            -63.25,
+            -0.75
+          ],
+          [
+            -63.25,
+            0.75
+          ],
+          [
+            -64.75,
+            0.75
+          ],
+          [
+            -64.75,
+            -0.75
+          ]
+        ]
+      ]
+    },
+    "region": "northwest",
+    "crop_early": 0.02,
+    "crop_late": 0.0299,
+    "crop_change": 0.01,
+    "pasture_early": 0.05,
+    "pasture_late": 0.0621,
+    "pasture_change": 0.012,
+    "land_conversion_change": 0.022,
+    "tas_early": 26.0,
+    "tas_late": 26.59,
+    "tas_change": 0.59,
+    "tasmax_early": 32.0,
+    "tasmax_late": 32.86,
+    "tasmax_change": 0.86,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 2.31,
+    "pr_dry_change": -0.09,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 118.94,
+    "mrsos_dry_change": -1.06,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 77.35,
+    "hurs_dry_change": -0.65,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 3.25,
+    "evspsbl_change": 0.05,
+    "lai_early": 4.4,
+    "lai_late": 4.42,
+    "lai_change": 0.02,
+    "gpp_early": 8.5,
+    "gpp_late": 8.58,
+    "gpp_change": 0.08,
+    "nbp_early": 0.35,
+    "nbp_late": 0.37,
+    "nbp_change": 0.02,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-04",
+    "lat": -3,
+    "lon": -56,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -56.75,
+            -3.75
+          ],
+          [
+            -55.25,
+            -3.75
+          ],
+          [
+            -55.25,
+            -2.25
+          ],
+          [
+            -56.75,
+            -2.25
+          ],
+          [
+            -56.75,
+            -3.75
+          ]
+        ]
+      ]
+    },
+    "region": "northeast",
+    "crop_early": 0.02,
+    "crop_late": 0.101,
+    "crop_change": 0.081,
+    "pasture_early": 0.05,
+    "pasture_late": 0.14900000000000002,
+    "pasture_change": 0.099,
+    "land_conversion_change": 0.18,
+    "tas_early": 26.0,
+    "tas_late": 27.51,
+    "tas_change": 1.51,
+    "tasmax_early": 32.0,
+    "tasmax_late": 33.94,
+    "tasmax_change": 1.94,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 1.83,
+    "pr_dry_change": -0.57,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 117.04,
+    "mrsos_dry_change": -2.96,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 76.24,
+    "hurs_dry_change": -1.76,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 3.05,
+    "evspsbl_change": -0.15,
+    "lai_early": 4.4,
+    "lai_late": 4.14,
+    "lai_change": -0.26,
+    "gpp_early": 8.5,
+    "gpp_late": 7.97,
+    "gpp_change": -0.53,
+    "nbp_early": 0.35,
+    "nbp_late": 0.13,
+    "nbp_change": -0.22,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-05",
+    "lat": -5,
+    "lon": -54,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -54.75,
+            -5.75
+          ],
+          [
+            -53.25,
+            -5.75
+          ],
+          [
+            -53.25,
+            -4.25
+          ],
+          [
+            -54.75,
+            -4.25
+          ],
+          [
+            -54.75,
+            -5.75
+          ]
+        ]
+      ]
+    },
+    "region": "northeast",
+    "crop_early": 0.02,
+    "crop_late": 0.10775000000000001,
+    "crop_change": 0.088,
+    "pasture_early": 0.05,
+    "pasture_late": 0.15725,
+    "pasture_change": 0.107,
+    "land_conversion_change": 0.195,
+    "tas_early": 26.0,
+    "tas_late": 27.57,
+    "tas_change": 1.57,
+    "tasmax_early": 32.0,
+    "tasmax_late": 34.01,
+    "tasmax_change": 2.01,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 1.8,
+    "pr_dry_change": -0.6,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 116.86,
+    "mrsos_dry_change": -3.14,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 76.14,
+    "hurs_dry_change": -1.86,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 3.03,
+    "evspsbl_change": -0.17,
+    "lai_early": 4.4,
+    "lai_late": 4.11,
+    "lai_change": -0.29,
+    "gpp_early": 8.5,
+    "gpp_late": 7.9,
+    "gpp_change": -0.6,
+    "nbp_early": 0.35,
+    "nbp_late": 0.1,
+    "nbp_change": -0.25,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-06",
+    "lat": -1,
+    "lon": -52,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -52.75,
+            -1.75
+          ],
+          [
+            -51.25,
+            -1.75
+          ],
+          [
+            -51.25,
+            -0.25
+          ],
+          [
+            -52.75,
+            -0.25
+          ],
+          [
+            -52.75,
+            -1.75
+          ]
+        ]
+      ]
+    },
+    "region": "northeast",
+    "crop_early": 0.02,
+    "crop_late": 0.1145,
+    "crop_change": 0.095,
+    "pasture_early": 0.05,
+    "pasture_late": 0.1655,
+    "pasture_change": 0.116,
+    "land_conversion_change": 0.21,
+    "tas_early": 26.0,
+    "tas_late": 27.63,
+    "tas_change": 1.63,
+    "tasmax_early": 32.0,
+    "tasmax_late": 34.09,
+    "tasmax_change": 2.09,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 1.77,
+    "pr_dry_change": -0.63,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 116.68,
+    "mrsos_dry_change": -3.32,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 76.03,
+    "hurs_dry_change": -1.97,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 3.01,
+    "evspsbl_change": -0.19,
+    "lai_early": 4.4,
+    "lai_late": 4.08,
+    "lai_change": -0.32,
+    "gpp_early": 8.5,
+    "gpp_late": 7.83,
+    "gpp_change": -0.67,
+    "nbp_early": 0.35,
+    "nbp_late": 0.07,
+    "nbp_change": -0.28,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-07",
+    "lat": -10,
+    "lon": -68,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -68.75,
+            -10.75
+          ],
+          [
+            -67.25,
+            -10.75
+          ],
+          [
+            -67.25,
+            -9.25
+          ],
+          [
+            -68.75,
+            -9.25
+          ],
+          [
+            -68.75,
+            -10.75
+          ]
+        ]
+      ]
+    },
+    "region": "southwest",
+    "crop_early": 0.02,
+    "crop_late": 0.09425,
+    "crop_change": 0.074,
+    "pasture_early": 0.05,
+    "pasture_late": 0.14075,
+    "pasture_change": 0.091,
+    "land_conversion_change": 0.165,
+    "tas_early": 26.0,
+    "tas_late": 27.34,
+    "tas_change": 1.34,
+    "tasmax_early": 32.0,
+    "tasmax_late": 33.76,
+    "tasmax_change": 1.76,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 2.05,
+    "pr_dry_change": -0.35,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 116.02,
+    "mrsos_dry_change": -3.98,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 76.34,
+    "hurs_dry_change": -1.65,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 3.07,
+    "evspsbl_change": -0.13,
+    "lai_early": 4.4,
+    "lai_late": 4.19,
+    "lai_change": -0.21,
+    "gpp_early": 8.5,
+    "gpp_late": 8.07,
+    "gpp_change": -0.43,
+    "nbp_early": 0.35,
+    "nbp_late": 0.18,
+    "nbp_change": -0.17,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-08",
+    "lat": -12,
+    "lon": -66,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -66.75,
+            -12.75
+          ],
+          [
+            -65.25,
+            -12.75
+          ],
+          [
+            -65.25,
+            -11.25
+          ],
+          [
+            -66.75,
+            -11.25
+          ],
+          [
+            -66.75,
+            -12.75
+          ]
+        ]
+      ]
+    },
+    "region": "southwest",
+    "crop_early": 0.02,
+    "crop_late": 0.101,
+    "crop_change": 0.081,
+    "pasture_early": 0.05,
+    "pasture_late": 0.14900000000000002,
+    "pasture_change": 0.099,
+    "land_conversion_change": 0.18,
+    "tas_early": 26.0,
+    "tas_late": 27.41,
+    "tas_change": 1.41,
+    "tasmax_early": 32.0,
+    "tasmax_late": 33.84,
+    "tasmax_change": 1.84,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 2.03,
+    "pr_dry_change": -0.37,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 115.84,
+    "mrsos_dry_change": -4.16,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 76.24,
+    "hurs_dry_change": -1.76,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 3.05,
+    "evspsbl_change": -0.15,
+    "lai_early": 4.4,
+    "lai_late": 4.16,
+    "lai_change": -0.24,
+    "gpp_early": 8.5,
+    "gpp_late": 8.0,
+    "gpp_change": -0.5,
+    "nbp_early": 0.35,
+    "nbp_late": 0.15,
+    "nbp_change": -0.2,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-09",
+    "lat": -8,
+    "lon": -64,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -64.75,
+            -8.75
+          ],
+          [
+            -63.25,
+            -8.75
+          ],
+          [
+            -63.25,
+            -7.25
+          ],
+          [
+            -64.75,
+            -7.25
+          ],
+          [
+            -64.75,
+            -8.75
+          ]
+        ]
+      ]
+    },
+    "region": "southwest",
+    "crop_early": 0.02,
+    "crop_late": 0.10775000000000001,
+    "crop_change": 0.088,
+    "pasture_early": 0.05,
+    "pasture_late": 0.15725,
+    "pasture_change": 0.107,
+    "land_conversion_change": 0.195,
+    "tas_early": 26.0,
+    "tas_late": 27.47,
+    "tas_change": 1.47,
+    "tasmax_early": 32.0,
+    "tasmax_late": 33.91,
+    "tasmax_change": 1.91,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 2.0,
+    "pr_dry_change": -0.4,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 115.66,
+    "mrsos_dry_change": -4.34,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 76.14,
+    "hurs_dry_change": -1.86,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 3.03,
+    "evspsbl_change": -0.17,
+    "lai_early": 4.4,
+    "lai_late": 4.13,
+    "lai_change": -0.27,
+    "gpp_early": 8.5,
+    "gpp_late": 7.93,
+    "gpp_change": -0.57,
+    "nbp_early": 0.35,
+    "nbp_late": 0.12,
+    "nbp_change": -0.23,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-10",
+    "lat": -10,
+    "lon": -56,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -56.75,
+            -10.75
+          ],
+          [
+            -55.25,
+            -10.75
+          ],
+          [
+            -55.25,
+            -9.25
+          ],
+          [
+            -56.75,
+            -9.25
+          ],
+          [
+            -56.75,
+            -10.75
+          ]
+        ]
+      ]
+    },
+    "region": "southeast",
+    "crop_early": 0.02,
+    "crop_late": 0.16849999999999998,
+    "crop_change": 0.148,
+    "pasture_early": 0.05,
+    "pasture_late": 0.23149999999999998,
+    "pasture_change": 0.181,
+    "land_conversion_change": 0.33,
+    "tas_early": 26.0,
+    "tas_late": 28.29,
+    "tas_change": 2.29,
+    "tasmax_early": 32.0,
+    "tasmax_late": 34.87,
+    "tasmax_change": 2.87,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 1.56,
+    "pr_dry_change": -0.84,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 114.04,
+    "mrsos_dry_change": -5.96,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 75.19,
+    "hurs_dry_change": -2.81,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 2.85,
+    "evspsbl_change": -0.35,
+    "lai_early": 4.4,
+    "lai_late": 3.79,
+    "lai_change": -0.61,
+    "gpp_early": 8.5,
+    "gpp_late": 7.21,
+    "gpp_change": -1.29,
+    "nbp_early": 0.35,
+    "nbp_late": -0.19,
+    "nbp_change": -0.54,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-11",
+    "lat": -12,
+    "lon": -54,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -54.75,
+            -12.75
+          ],
+          [
+            -53.25,
+            -12.75
+          ],
+          [
+            -53.25,
+            -11.25
+          ],
+          [
+            -54.75,
+            -11.25
+          ],
+          [
+            -54.75,
+            -12.75
+          ]
+        ]
+      ]
+    },
+    "region": "southeast",
+    "crop_early": 0.02,
+    "crop_late": 0.17525,
+    "crop_change": 0.155,
+    "pasture_early": 0.05,
+    "pasture_late": 0.23975000000000002,
+    "pasture_change": 0.19,
+    "land_conversion_change": 0.345,
+    "tas_early": 26.0,
+    "tas_late": 28.35,
+    "tas_change": 2.35,
+    "tasmax_early": 32.0,
+    "tasmax_late": 34.94,
+    "tasmax_change": 2.94,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 1.53,
+    "pr_dry_change": -0.87,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 113.86,
+    "mrsos_dry_change": -6.14,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 75.08,
+    "hurs_dry_change": -2.92,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 2.83,
+    "evspsbl_change": -0.37,
+    "lai_early": 4.4,
+    "lai_late": 3.76,
+    "lai_change": -0.64,
+    "gpp_early": 8.5,
+    "gpp_late": 7.14,
+    "gpp_change": -1.36,
+    "nbp_early": 0.35,
+    "nbp_late": -0.22,
+    "nbp_change": -0.57,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-12",
+    "lat": -14,
+    "lon": -52,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -52.75,
+            -14.75
+          ],
+          [
+            -51.25,
+            -14.75
+          ],
+          [
+            -51.25,
+            -13.25
+          ],
+          [
+            -52.75,
+            -13.25
+          ],
+          [
+            -52.75,
+            -14.75
+          ]
+        ]
+      ]
+    },
+    "region": "southeast",
+    "crop_early": 0.02,
+    "crop_late": 0.182,
+    "crop_change": 0.162,
+    "pasture_early": 0.05,
+    "pasture_late": 0.248,
+    "pasture_change": 0.198,
+    "land_conversion_change": 0.36,
+    "tas_early": 26.0,
+    "tas_late": 28.41,
+    "tas_change": 2.41,
+    "tasmax_early": 32.0,
+    "tasmax_late": 35.02,
+    "tasmax_change": 3.02,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 1.5,
+    "pr_dry_change": -0.9,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 113.68,
+    "mrsos_dry_change": -6.32,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 74.98,
+    "hurs_dry_change": -3.02,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 2.81,
+    "evspsbl_change": -0.39,
+    "lai_early": 4.4,
+    "lai_late": 3.73,
+    "lai_change": -0.67,
+    "gpp_early": 8.5,
+    "gpp_late": 7.07,
+    "gpp_change": -1.43,
+    "nbp_early": 0.35,
+    "nbp_late": -0.25,
+    "nbp_change": -0.6,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-13",
+    "lat": -8,
+    "lon": -50,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -50.75,
+            -8.75
+          ],
+          [
+            -49.25,
+            -8.75
+          ],
+          [
+            -49.25,
+            -7.25
+          ],
+          [
+            -50.75,
+            -7.25
+          ],
+          [
+            -50.75,
+            -8.75
+          ]
+        ]
+      ]
+    },
+    "region": "southeast",
+    "crop_early": 0.02,
+    "crop_late": 0.18875,
+    "crop_change": 0.169,
+    "pasture_early": 0.05,
+    "pasture_late": 0.25625000000000003,
+    "pasture_change": 0.206,
+    "land_conversion_change": 0.375,
+    "tas_early": 26.0,
+    "tas_late": 28.48,
+    "tas_change": 2.48,
+    "tasmax_early": 32.0,
+    "tasmax_late": 35.1,
+    "tasmax_change": 3.1,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 1.47,
+    "pr_dry_change": -0.93,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 113.5,
+    "mrsos_dry_change": -6.5,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 74.88,
+    "hurs_dry_change": -3.12,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 2.79,
+    "evspsbl_change": -0.41,
+    "lai_early": 4.4,
+    "lai_late": 3.7,
+    "lai_change": -0.7,
+    "gpp_early": 8.5,
+    "gpp_late": 7.0,
+    "gpp_change": -1.5,
+    "nbp_early": 0.35,
+    "nbp_late": -0.28,
+    "nbp_change": -0.63,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-14",
+    "lat": -6,
+    "lon": -50,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -50.75,
+            -6.75
+          ],
+          [
+            -49.25,
+            -6.75
+          ],
+          [
+            -49.25,
+            -5.25
+          ],
+          [
+            -50.75,
+            -5.25
+          ],
+          [
+            -50.75,
+            -6.75
+          ]
+        ]
+      ]
+    },
+    "region": "northeast",
+    "crop_early": 0.02,
+    "crop_late": 0.1685,
+    "crop_change": 0.149,
+    "pasture_early": 0.05,
+    "pasture_late": 0.23150000000000004,
+    "pasture_change": 0.182,
+    "land_conversion_change": 0.33,
+    "tas_early": 26.0,
+    "tas_late": 28.14,
+    "tas_change": 2.14,
+    "tasmax_early": 32.0,
+    "tasmax_late": 34.72,
+    "tasmax_change": 2.72,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 1.56,
+    "pr_dry_change": -0.84,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 115.24,
+    "mrsos_dry_change": -4.76,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 75.19,
+    "hurs_dry_change": -2.81,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 2.85,
+    "evspsbl_change": -0.35,
+    "lai_early": 4.4,
+    "lai_late": 3.82,
+    "lai_change": -0.58,
+    "gpp_early": 8.5,
+    "gpp_late": 7.27,
+    "gpp_change": -1.23,
+    "nbp_early": 0.35,
+    "nbp_late": -0.16,
+    "nbp_change": -0.51,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-15",
+    "lat": -14,
+    "lon": -62,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -62.75,
+            -14.75
+          ],
+          [
+            -61.25,
+            -14.75
+          ],
+          [
+            -61.25,
+            -13.25
+          ],
+          [
+            -62.75,
+            -13.25
+          ],
+          [
+            -62.75,
+            -14.75
+          ]
+        ]
+      ]
+    },
+    "region": "southwest",
+    "crop_early": 0.02,
+    "crop_late": 0.14825,
+    "crop_change": 0.128,
+    "pasture_early": 0.05,
+    "pasture_late": 0.20675,
+    "pasture_change": 0.157,
+    "land_conversion_change": 0.285,
+    "tas_early": 26.0,
+    "tas_late": 27.85,
+    "tas_change": 1.85,
+    "tasmax_early": 32.0,
+    "tasmax_late": 34.38,
+    "tasmax_change": 2.38,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 1.84,
+    "pr_dry_change": -0.56,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 114.58,
+    "mrsos_dry_change": -5.42,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 75.5,
+    "hurs_dry_change": -2.5,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 2.91,
+    "evspsbl_change": -0.29,
+    "lai_early": 4.4,
+    "lai_late": 3.93,
+    "lai_change": -0.47,
+    "gpp_early": 8.5,
+    "gpp_late": 7.51,
+    "gpp_change": -0.99,
+    "nbp_early": 0.35,
+    "nbp_late": -0.05,
+    "nbp_change": -0.4,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-16",
+    "lat": 2,
+    "lon": -60,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -60.75,
+            1.25
+          ],
+          [
+            -59.25,
+            1.25
+          ],
+          [
+            -59.25,
+            2.75
+          ],
+          [
+            -60.75,
+            2.75
+          ],
+          [
+            -60.75,
+            1.25
+          ]
+        ]
+      ]
+    },
+    "region": "northwest",
+    "crop_early": 0.02,
+    "crop_late": 0.0533,
+    "crop_change": 0.033,
+    "pasture_early": 0.05,
+    "pasture_late": 0.0907,
+    "pasture_change": 0.041,
+    "land_conversion_change": 0.074,
+    "tas_early": 26.0,
+    "tas_late": 26.81,
+    "tas_change": 0.81,
+    "tasmax_early": 32.0,
+    "tasmax_late": 33.13,
+    "tasmax_change": 1.13,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 2.22,
+    "pr_dry_change": -0.18,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 118.31,
+    "mrsos_dry_change": -1.69,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 76.98,
+    "hurs_dry_change": -1.02,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 3.18,
+    "evspsbl_change": -0.02,
+    "lai_early": 4.4,
+    "lai_late": 4.35,
+    "lai_change": -0.05,
+    "gpp_early": 8.5,
+    "gpp_late": 8.41,
+    "gpp_change": -0.09,
+    "nbp_early": 0.35,
+    "nbp_late": 0.31,
+    "nbp_change": -0.04,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-17",
+    "lat": -6,
+    "lon": -60,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -60.75,
+            -6.75
+          ],
+          [
+            -59.25,
+            -6.75
+          ],
+          [
+            -59.25,
+            -5.25
+          ],
+          [
+            -60.75,
+            -5.25
+          ],
+          [
+            -60.75,
+            -6.75
+          ]
+        ]
+      ]
+    },
+    "region": "other",
+    "crop_early": 0.02,
+    "crop_late": 0.055099999999999996,
+    "crop_change": 0.035,
+    "pasture_early": 0.05,
+    "pasture_late": 0.09290000000000001,
+    "pasture_change": 0.043,
+    "land_conversion_change": 0.078,
+    "tas_early": 26.0,
+    "tas_late": 26.83,
+    "tas_change": 0.83,
+    "tasmax_early": 32.0,
+    "tasmax_late": 33.16,
+    "tasmax_change": 1.16,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 2.21,
+    "pr_dry_change": -0.19,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 118.26,
+    "mrsos_dry_change": -1.74,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 76.95,
+    "hurs_dry_change": -1.05,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 3.18,
+    "evspsbl_change": -0.02,
+    "lai_early": 4.4,
+    "lai_late": 4.34,
+    "lai_change": -0.06,
+    "gpp_early": 8.5,
+    "gpp_late": 8.4,
+    "gpp_change": -0.1,
+    "nbp_early": 0.35,
+    "nbp_late": 0.3,
+    "nbp_change": -0.05,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-18",
+    "lat": -9,
+    "lon": -60,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -60.75,
+            -9.75
+          ],
+          [
+            -59.25,
+            -9.75
+          ],
+          [
+            -59.25,
+            -8.25
+          ],
+          [
+            -60.75,
+            -8.25
+          ],
+          [
+            -60.75,
+            -9.75
+          ]
+        ]
+      ]
+    },
+    "region": "other",
+    "crop_early": 0.02,
+    "crop_late": 0.056900000000000006,
+    "crop_change": 0.037,
+    "pasture_early": 0.05,
+    "pasture_late": 0.09510000000000002,
+    "pasture_change": 0.045,
+    "land_conversion_change": 0.082,
+    "tas_early": 26.0,
+    "tas_late": 26.84,
+    "tas_change": 0.84,
+    "tasmax_early": 32.0,
+    "tasmax_late": 33.18,
+    "tasmax_change": 1.18,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 2.2,
+    "pr_dry_change": -0.2,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 118.22,
+    "mrsos_dry_change": -1.78,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 76.93,
+    "hurs_dry_change": -1.07,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 3.17,
+    "evspsbl_change": -0.03,
+    "lai_early": 4.4,
+    "lai_late": 4.34,
+    "lai_change": -0.06,
+    "gpp_early": 8.5,
+    "gpp_late": 8.39,
+    "gpp_change": -0.11,
+    "nbp_early": 0.35,
+    "nbp_late": 0.3,
+    "nbp_change": -0.05,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-19",
+    "lat": -15,
+    "lon": -50,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -50.75,
+            -15.75
+          ],
+          [
+            -49.25,
+            -15.75
+          ],
+          [
+            -49.25,
+            -14.25
+          ],
+          [
+            -50.75,
+            -14.25
+          ],
+          [
+            -50.75,
+            -15.75
+          ]
+        ]
+      ]
+    },
+    "region": "southeast",
+    "crop_early": 0.02,
+    "crop_late": 0.22924999999999998,
+    "crop_change": 0.209,
+    "pasture_early": 0.05,
+    "pasture_late": 0.30574999999999997,
+    "pasture_change": 0.256,
+    "land_conversion_change": 0.465,
+    "tas_early": 26.0,
+    "tas_late": 28.85,
+    "tas_change": 2.85,
+    "tasmax_early": 32.0,
+    "tasmax_late": 35.57,
+    "tasmax_change": 3.57,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 1.31,
+    "pr_dry_change": -1.09,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 112.42,
+    "mrsos_dry_change": -7.58,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 74.25,
+    "hurs_dry_change": -3.75,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 2.68,
+    "evspsbl_change": -0.52,
+    "lai_early": 4.4,
+    "lai_late": 3.5,
+    "lai_change": -0.9,
+    "gpp_early": 8.5,
+    "gpp_late": 6.58,
+    "gpp_change": -1.92,
+    "nbp_early": 0.35,
+    "nbp_late": -0.45,
+    "nbp_change": -0.8,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  },
+  {
+    "cell_id": "demo-20",
+    "lat": -4,
+    "lon": -48,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -48.75,
+            -4.75
+          ],
+          [
+            -47.25,
+            -4.75
+          ],
+          [
+            -47.25,
+            -3.25
+          ],
+          [
+            -48.75,
+            -3.25
+          ],
+          [
+            -48.75,
+            -4.75
+          ]
+        ]
+      ]
+    },
+    "region": "northeast",
+    "crop_early": 0.02,
+    "crop_late": 0.209,
+    "crop_change": 0.189,
+    "pasture_early": 0.05,
+    "pasture_late": 0.281,
+    "pasture_change": 0.231,
+    "land_conversion_change": 0.42,
+    "tas_early": 26.0,
+    "tas_late": 28.51,
+    "tas_change": 2.51,
+    "tasmax_early": 32.0,
+    "tasmax_late": 35.18,
+    "tasmax_change": 3.18,
+    "pr_dry_early": 2.4,
+    "pr_dry_late": 1.39,
+    "pr_dry_change": -1.01,
+    "mrsos_dry_early": 120,
+    "mrsos_dry_late": 114.16,
+    "mrsos_dry_change": -5.84,
+    "hurs_dry_early": 78,
+    "hurs_dry_late": 74.56,
+    "hurs_dry_change": -3.44,
+    "evspsbl_early": 3.2,
+    "evspsbl_late": 2.73,
+    "evspsbl_change": -0.47,
+    "lai_early": 4.4,
+    "lai_late": 3.63,
+    "lai_change": -0.77,
+    "gpp_early": 8.5,
+    "gpp_late": 6.85,
+    "gpp_change": -1.65,
+    "nbp_early": 0.35,
+    "nbp_late": -0.33,
+    "nbp_change": -0.68,
+    "warming_score": null,
+    "dryness_score": null,
+    "climate_stress_score": null,
+    "productivity_response_score": null,
+    "carbon_fragility_score": null
+  }
+]
