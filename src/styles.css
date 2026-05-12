@@ -344,19 +344,20 @@ body {
 }
 
 .map-annotation {
+  display: block;
   position: absolute;
   top: 22px;
   left: 22px;
-  z-index: 6;
-  max-width: 18.5rem;
-  padding: 0.95rem 1.05rem 1rem;
+  z-index: 30;
+  max-width: 19rem;
+  padding: 0.95rem 1.05rem 1rem 1.15rem;
   border-radius: 14px;
   background: rgba(255, 253, 248, 0.96);
   border: 1px solid rgba(20, 31, 22, 0.12);
   box-shadow: 0 18px 38px rgba(20, 31, 22, 0.12);
   color: var(--text);
   pointer-events: none;
-  transition: opacity 0.28s ease, transform 0.28s ease;
+  animation: map-annotation-enter 0.42s cubic-bezier(0.22, 0.8, 0.36, 1) both;
 }
 .map-annotation::before {
   content: '';
@@ -369,10 +370,14 @@ body {
   border-radius: 0 3px 3px 0;
 }
 .map-annotation.is-hidden {
-  opacity: 0;
-  transform: translateY(-6px);
-  pointer-events: none;
-  visibility: hidden;
+  display: none;
+}
+@keyframes map-annotation-enter {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-annotation { animation: none; }
 }
 .map-annotation-mark {
   display: inline-block;

@@ -469,13 +469,18 @@ function updateAnnotation(step) {
     return;
   }
   const { title, detail } = step.annotation;
-  node.classList.remove('is-hidden');
-  node.setAttribute('aria-hidden', 'false');
   node.innerHTML = `
     <span class="map-annotation-mark" aria-hidden="true"></span>
     <strong class="map-annotation-title">${title}</strong>
     <p class="map-annotation-detail">${detail}</p>
   `;
+  node.setAttribute('aria-hidden', 'false');
+  node.classList.remove('is-hidden');
+  // Restart the entry animation so it replays each step change.
+  node.style.animation = 'none';
+  // eslint-disable-next-line no-unused-expressions
+  void node.offsetWidth;
+  node.style.animation = '';
 }
 
 function render() {
