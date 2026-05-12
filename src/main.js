@@ -228,6 +228,7 @@ function layout() {
         <div class="map-wrap">
           <svg id="main-map" role="img" aria-label="Amazon grid visualization"></svg>
           <div id="dynamic-chart"></div>
+          <aside id="map-annotation" class="map-annotation is-hidden" aria-hidden="true"></aside>
         </div>
       </div>
     </div>
@@ -458,12 +459,32 @@ function mapPaddingForLayout() {
 
 // ─── Render ────────────────────────────────────────────────────
 
+function updateAnnotation(step) {
+  const node = document.getElementById('map-annotation');
+  if (!node) return;
+  if (!step?.annotation) {
+    node.classList.add('is-hidden');
+    node.setAttribute('aria-hidden', 'true');
+    node.innerHTML = '';
+    return;
+  }
+  const { title, detail } = step.annotation;
+  node.classList.remove('is-hidden');
+  node.setAttribute('aria-hidden', 'false');
+  node.innerHTML = `
+    <span class="map-annotation-mark" aria-hidden="true"></span>
+    <strong class="map-annotation-title">${title}</strong>
+    <p class="map-annotation-detail">${detail}</p>
+  `;
+}
+
 function render() {
   const step = storySteps[state.activeStep];
   const { width, height } = chartSize();
   const svg = d3.select('#main-map').style('display', null);
   const dynamic = d3.select('#dynamic-chart').style('display', 'none');
   const legend = d3.select('#legend');
+  updateAnnotation(step);
 
   const common = {
     rows: state.rows,

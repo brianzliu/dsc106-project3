@@ -343,6 +343,72 @@ body {
   pointer-events: none;
 }
 
+.map-annotation {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  z-index: 6;
+  max-width: 18.5rem;
+  padding: 0.95rem 1.05rem 1rem;
+  border-radius: 14px;
+  background: rgba(255, 253, 248, 0.96);
+  border: 1px solid rgba(20, 31, 22, 0.12);
+  box-shadow: 0 18px 38px rgba(20, 31, 22, 0.12);
+  color: var(--text);
+  pointer-events: none;
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+.map-annotation::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 0;
+  bottom: 14px;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+.map-annotation.is-hidden {
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  visibility: hidden;
+}
+.map-annotation-mark {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 0.45rem;
+  vertical-align: 0.06rem;
+}
+.map-annotation-title {
+  display: inline;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-variation-settings: 'opsz' 36;
+  font-size: 1.05rem;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.map-annotation-detail {
+  margin-top: 0.5rem;
+  font-size: 0.83rem;
+  line-height: 1.5;
+  color: var(--text-mid);
+}
+
+@media (max-width: 860px) {
+  .map-annotation {
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    max-width: none;
+  }
+}
+
 /* Category legend */
 .category-legend {
   display: flex;
@@ -618,17 +684,9 @@ body {
   letter-spacing: -0.02em;
 }
 .chart-note { fill: var(--text-light); font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.04em; }
-.sink-callout {
-  transform-box: fill-box;
-  transform-origin: center;
-}
-.sink-callout-halo {
+.sink-hotspot-outline {
   vector-effect: non-scaling-stroke;
-  filter: blur(2px);
-}
-.sink-callout-ring {
-  vector-effect: non-scaling-stroke;
-  filter: drop-shadow(0 8px 18px rgba(184, 79, 22, 0.16));
+  filter: drop-shadow(0 1px 0 rgba(139, 31, 15, 0.35));
 }
 .callout-text {
   paint-order: stroke;

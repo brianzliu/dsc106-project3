@@ -92,131 +92,6 @@ function changeLegendItems(colorScale, bounds) {
   });
 }
 
-function measureCluster(cluster) {
-  const cx = d3.mean(cluster.points, (point) => point.x);
-  const cy = d3.mean(cluster.points, (point) => point.y);
-  const meanLon = d3.mean(cluster.points, (point) => point.lon);
-  const meanLat = d3.mean(cluster.points, (point) => point.lat);
-  const totalSeverity = d3.sum(cluster.points, (point) => point.severity);
-  const radius = Math.max(
-    34,
-    d3.max(cluster.points, (point) => Math.hypot(point.x - cx, point.y - cy)) + 24
-  );
-
-  return {
-    ...cluster,
-    cx,
-    cy,
-    meanLon,
-    meanLat,
-    totalSeverity,
-    radius
-  };
-}
-
-function clampCallout(cluster, width, height) {
-  const margin = 18;
-  return {
-    ...cluster,
-    cx: Math.max(cluster.radius + margin, Math.min(width - cluster.radius - margin, cluster.cx)),
-    cy: Math.max(cluster.radius + margin, Math.min(height - cluster.radius - margin, cluster.cy))
-  };
-}
-
-function mergeOverlappingCallouts(clusters, width, height) {
-  const working = clusters.map((cluster) => measureCluster(cluster));
-  let changed = true;
-
-  while (changed) {
-    changed = false;
-
-    outer: for (let i = 0; i < working.length; i += 1) {
-      for (let j = i + 1; j < working.length; j += 1) {
-        const a = working[i];
-        const b = working[j];
-        const distance = Math.hypot(a.cx - b.cx, a.cy - b.cy);
-        const minDistance = (a.radius + b.radius) * 0.94;
-
-        if (distance < minDistance) {
-          const merged = measureCluster({
-            points: [...a.points, ...b.points]
-          });
-          working.splice(j, 1);
-          working.splice(i, 1, merged);
-          changed = true;
-          break outer;
-        }
-      }
-    }
-  }
-
-  return working
-    .sort((a, b) => b.totalSeverity - a.totalSeverity)
-    .slice(0, 4)
-    .map((cluster) => clampCallout(cluster, width, height));
-}
-
-function clusterSourceShiftRegions(features, path, width, height) {
-  const points = features
-    .map((feature) => {
-      const [x, y] = path.centroid(feature);
-      return Number.isFinite(x) && Number.isFinite(y)
-        ? {
-            feature,
-            x,
-            y,
-            lon: Number(feature.properties.lon),
-            lat: Number(feature.properties.lat),
-            severity: Math.abs(finiteNumber(feature.properties.timeline_change) ?? 0)
-          }
-        : null;
-    })
-    .filter(Boolean)
-    .sort((a, b) => b.severity - a.severity);
-
-  const clusters = [];
-  const mergeDistance = 105;
-
-  for (const point of points) {
-    let target = null;
-    let bestDistance = Infinity;
-    for (const cluster of clusters) {
-      const distance = Math.hypot(point.x - cluster.cx, point.y - cluster.cy);
-      if (distance < mergeDistance && distance < bestDistance) {
-        target = cluster;
-        bestDistance = distance;
-      }
-    }
-
-    if (!target) {
-      clusters.push({
-        points: [point],
-        totalSeverity: point.severity,
-        cx: point.x,
-        cy: point.y,
-        meanLon: point.lon,
-        meanLat: point.lat
-      });
-      continue;
-    }
-
-    target.points.push(point);
-    target.totalSeverity += point.severity;
-    target.cx = d3.mean(target.points, (item) => item.x);
-    target.cy = d3.mean(target.points, (item) => item.y);
-    target.meanLon = d3.mean(target.points, (item) => item.lon);
-    target.meanLat = d3.mean(target.points, (item) => item.lat);
-  }
-
-  return mergeOverlappingCallouts(
-    clusters
-    .filter((cluster) => cluster.points.length >= 2)
-    .sort((a, b) => b.totalSeverity - a.totalSeverity),
-    width,
-    height
-  );
-}
-
 export function renderSinkTransition({
   container,
   legend,
@@ -346,51 +221,29 @@ export function renderSinkTransition({
       return value !== null && endValue !== null && endValue <= 0 && value <= sourceShiftThreshold && Math.abs(value) >= hotspotThreshold;
     });
 
-    const clusters = clusterSourceShiftRegions(hotspotFeatures, path, width, chartHeight);
-    const calloutLayer = root.append('g').attr('class', 'sink-callouts').attr('pointer-events', 'none');
+    const hotspotLayer = root.append('g')
+      .attr('class', 'sink-hotspot-outlines')
+      .attr('pointer-events', 'none');
 
-    clusters.forEach((cluster, index) => {
-      const callout = calloutLayer.append('g')
-        .attr('class', 'sink-callout')
-        .attr('transform', `translate(${cluster.cx}, ${cluster.cy}) scale(0.82)`)
-        .style('opacity', 0);
+    hotspotFeatures.forEach((feature, index) => {
+      const [cx, cy] = path.centroid(feature);
+      if (!Number.isFinite(cx) || !Number.isFinite(cy)) return;
+      const r = cellRadius(feature, path);
 
-      callout.append('circle')
-        .attr('class', 'sink-callout-halo')
-        .attr('cx', 0)
-        .attr('cy', 0)
-        .attr('r', cluster.radius * 0.42)
-        .attr('fill', 'rgba(184, 79, 22, 0.18)')
-        .attr('stroke', 'none')
-        .style('opacity', 0.55)
+      hotspotLayer.append('polygon')
+        .attr('class', 'sink-hotspot-outline')
+        .attr('points', hexPoints(cx, cy, r))
+        .attr('fill', 'none')
+        .attr('stroke', '#8b1f0f')
+        .attr('stroke-width', 2.6)
+        .attr('stroke-linejoin', 'round')
+        .attr('vector-effect', 'non-scaling-stroke')
+        .style('opacity', 0)
         .transition()
-        .delay(180 + index * 140)
-        .duration(820)
+        .delay(180 + index * 18)
+        .duration(420)
         .ease(d3.easeCubicOut)
-        .attr('r', cluster.radius);
-
-      callout.append('circle')
-        .attr('class', 'sink-callout-ring')
-        .attr('cx', 0)
-        .attr('cy', 0)
-        .attr('r', cluster.radius * 0.42)
-        .attr('fill', 'rgba(184, 79, 22, 0.08)')
-        .attr('stroke', '#9a3d11')
-        .attr('stroke-width', 3.5)
-        .style('opacity', 1)
-        .attr('stroke-dasharray', '7 5')
-        .transition()
-        .delay(180 + index * 140)
-        .duration(820)
-        .ease(d3.easeCubicOut)
-        .attr('r', cluster.radius);
-
-      callout.transition()
-        .delay(180 + index * 140)
-        .duration(820)
-        .ease(d3.easeCubicOut)
-        .style('opacity', 1)
-        .attr('transform', `translate(${cluster.cx}, ${cluster.cy}) scale(1)`);
+        .style('opacity', 1);
     });
   }
 
@@ -431,6 +284,6 @@ export function renderSinkTransition({
     type: 'categories',
     colors: changeLegendItems(colorScale, bounds),
     note: 'Carbon sink strength here means annual net biospheric production (NBP): positive NBP means the land is taking up more carbon than it releases, while negative NBP means it is behaving more like a carbon source. Brown bins mean the cell became less sink-like by 2014; green bins mean it became more sink-like.',
-    calculation: 'Carbon sink strength change = annual NBP in 2014 minus annual NBP in 1850 for each grid cell. Orange circles mark clustered regions where the shift is strongest toward source-like behavior by 2014.'
+    calculation: 'Carbon sink strength change = annual NBP in 2014 minus annual NBP in 1850 for each grid cell. Red-outlined cells are the ones that have flipped from absorbing carbon in 1850 to releasing it by 2014.'
   });
 }
