@@ -1,12 +1,14 @@
 import * as d3 from 'd3';
-import { bivariateColor, neutralColor, quantileRank } from '../utils/scales.js';
+import { bivariateColor, bivariatePalette, neutralColor, quantileRank } from '../utils/scales.js';
 import { finiteNumber } from '../utils/dataTransforms.js';
 import { drawMap } from './map.js';
 import { renderLegend } from './legend.js';
 
 export function renderBivariateMap({ svg, legend, rows, width, height, warmingKey = 'tas_change', ...handlers }) {
-  const landScale = d3.scaleQuantile().domain(rows.map((row) => finiteNumber(row.land_conversion_change)).filter((value) => value !== null)).range([0, 1, 2]);
-  const warmingScale = d3.scaleQuantile().domain(rows.map((row) => finiteNumber(row[warmingKey])).filter((value) => value !== null)).range([0, 1, 2]);
+  const landValues = rows.map((row) => finiteNumber(row.land_conversion_change)).filter((value) => value !== null);
+  const warmingValues = rows.map((row) => finiteNumber(row[warmingKey])).filter((value) => value !== null);
+  const landScale = d3.scaleQuantile().domain(landValues).range([0, 1, 2]);
+  const warmingScale = d3.scaleQuantile().domain(warmingValues).range([0, 1, 2]);
   drawMap({
     svg, rows, width, height, ...handlers,
     colorFor: (row) => {
@@ -15,13 +17,15 @@ export function renderBivariateMap({ svg, legend, rows, width, height, warmingKe
       return landRank === null || warmingRank === null ? neutralColor : bivariateColor(landRank, warmingRank);
     }
   });
+
+  const warmingLabel = warmingKey === 'tasmax_change' ? 'dry-season max-temperature warming' : 'mean warming';
   renderLegend(legend, {
     title: 'Land conversion + warming',
     type: 'bivariate',
-    colors: [
-      ['#e8e8e8', '#ace4e4', '#5ac8c8'],
-      ['#dfb0d6', '#a5add3', '#5698b9'],
-      ['#be64ac', '#8c62aa', '#3b4994']
-    ]
+    colors: bivariatePalette,
+    axisLabels: { x: 'Land conversion →', y: 'Warming →' },
+    labels: 'Darker red = both stronger conversion AND stronger warming in the same grid cell.',
+    note: `Cells in the top-right of the legend are the ones where the most aggressive land-cover change overlaps with the strongest ${warmingLabel}.`,
+    calculation: 'Land-conversion and warming values are each split into three terciles; the color combines the two tercile ranks.'
   });
 }

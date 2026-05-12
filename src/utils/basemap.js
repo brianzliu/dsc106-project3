@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import { feature } from 'topojson-client';
 
 let cache = null;
+let amazonBoundaryCache = null;
 const SOUTH_AMERICA_ISO = new Set([
   '076','032','068','170','152','218','254','328','600','604','740','858','862'
 ]);
@@ -26,4 +27,11 @@ export async function getSouthAmerica() {
 export async function getLand() {
   const { land } = await loadTopoJSON();
   return land;
+}
+
+export async function getAmazonBoundary() {
+  if (amazonBoundaryCache) return amazonBoundaryCache;
+  const geojson = await d3.json('/data/amazon_biogeographic_boundary.geojson');
+  amazonBoundaryCache = geojson;
+  return amazonBoundaryCache;
 }

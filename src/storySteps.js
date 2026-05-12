@@ -1,80 +1,79 @@
 export const storySteps = [
   {
-    id: 'uneven-amazon',
-    title: 'The Amazon is not uniform',
-    mode: 'overview',
-    toggle: 'Warming',
+    id: 'sink-then-now',
+    shortLabel: 'Then → now',
+    title: 'A carbon sink under pressure',
+    mode: 'sinkTransition',
+    focus: null,
     body: [
-      'Gatti et al. (2021) found that carbon-source behavior is spatially uneven, with stronger signals in eastern and southeastern Amazonia where deforestation, warming, and moisture stress coincide.',
-      'This scrollytelling view uses gridded CMIP6 variables to explore related land-climate-carbon patterns. It does not reproduce the paper’s aircraft CO₂ flux estimates.'
+      'The story begins with a tension: the Amazon has long helped absorb carbon, but that role is becoming less secure in parts of the basin.',
+      'This first map shows the net change in modeled carbon balance from 1850 to 2014. The circled zones mark where that shift is strongest toward source-like behavior by 2014.'
     ]
   },
   {
     id: 'land-conversion',
-    title: 'Land conversion spreads unevenly',
+    shortLabel: 'Land conversion',
+    title: 'The land surface changes first',
     mode: 'land',
-    toggle: 'Land conversion',
+    focus: { regions: ['southeast', 'southwest'], label: 'Arc of deforestation' },
     body: [
-      'Land conversion is treated as a land-surface disturbance that co-occurs with climate stress, not as a simple direct accounting of biomass lost and carbon uptake lost.',
-      'Cells with stronger crop and pasture expansion reveal where disturbance is concentrated across the modeled Amazon grid.'
+      'To understand why the carbon sink weakens, the first place to look is the land itself. Forest is being replaced unevenly by crops and pasture across the basin.',
+      'These changing areas act as the first domino, showing where the landscape has already been physically transformed before the climate response comes into view.'
     ]
   },
   {
     id: 'warming-overlap',
-    title: 'Cropland expansion overlaps with warming',
+    shortLabel: 'Warming overlap',
+    title: 'Converted places also grow hotter',
     mode: 'bivariate',
-    toggle: 'Warming',
+    focus: { regions: ['southeast'], label: 'Southeastern Amazonia' },
     body: [
-      'The paper links deforested and eastern regions with stronger warming. Here, the bivariate map asks whether modeled cells with more land conversion also show stronger warming.',
-      'Darker purple cells indicate places where the two pressures coincide.'
+      'The next question is whether those converted places are also warming more strongly. Land-cover change is not just a change in appearance; it can reshape local climate conditions.',
+      'Where land conversion and warming overlap, the story deepens: the most altered parts of the landscape are also becoming hotter.'
     ]
   },
   {
     id: 'dry-season-stress',
-    title: 'The dry season intensifies stress',
+    shortLabel: 'Dry stress',
+    title: 'The dry season intensifies the strain',
     mode: 'smallMultiples',
-    toggle: 'Dry-season stress',
+    focus: { regions: ['southeast'], label: 'Southeastern Amazonia' },
     body: [
-      'Warming is most damaging when paired with water limitation. Dry-season precipitation, soil moisture, and humidity changes expose moisture stress that annual averages can hide.',
-      'The linked small multiples keep the same grid while changing which dry-season stress signal is emphasized.'
+      'Heat alone is not enough to explain the risk. The more important question is what happens when hotter conditions collide with the dry season, when water is already harder to hold onto.',
+      'Looking across precipitation, soil moisture, and humidity shows how warming turns into ecological stress when the dry season grows harsher.'
     ]
   },
   {
     id: 'evaporative-cooling',
-    title: 'Evaporative cooling weakens',
+    shortLabel: 'Cooling weakens',
+    title: 'The forest loses part of its buffer',
     mode: 'evaporation',
-    toggle: 'Dry-season stress',
+    focus: { regions: ['southeast'], label: 'Southeastern Amazonia' },
     body: [
-      'Forested surfaces recycle moisture through evapotranspiration. When evapotranspiration weakens, less energy goes into latent cooling and hotter, drier stress can intensify.',
-      'This step bridges land conversion and regional climate stress without relying on the direct biomass-loss pathway.'
+      'A healthy forest helps cool and regulate itself by returning moisture to the air. When that buffering process weakens, hotter and drier conditions can feed on themselves.',
+      'This is the point where land change and dry-season stress stop looking separate and start behaving like a reinforcing system.'
     ]
   },
   {
     id: 'vegetation-response',
-    title: 'Vegetation response weakens under stress',
+    shortLabel: 'Vegetation',
+    title: 'Vegetation productivity starts to slip',
     mode: 'scatter',
-    toggle: 'Vegetation response',
+    focus: null,
     body: [
-      'The concern is not just hotter land; it is a stressed ecosystem with weaker vegetation function and weaker carbon uptake.',
-      'In the modeled data, hotter and drier cells are associated with weaker productivity response where points fall lower on the scatterplot.'
+      'Once the landscape is hotter and drier, the next question is whether the vegetation itself responds. If the ecosystem is under real stress, its productivity should begin to weaken.',
+      'The scatter shifts the story from maps to evidence, showing whether the cells facing the strongest pressure are also the ones where biological performance starts to fall.'
     ]
   },
   {
     id: 'carbon-fragility',
-    title: 'Carbon uptake turns fragile',
+    shortLabel: 'Fragility map',
+    title: 'Where the sink becomes fragile',
     mode: 'risk',
-    toggle: 'Carbon fragility',
+    focus: null,
     body: [
-      'The strongest danger zones are where land conversion, warming, drying, weakened evaporative cooling, weaker productivity, and weaker carbon uptake overlap.',
-      'This synthesis is consistent with the climate-stress mechanism described by Gatti et al.; it does not prove causality from CMIP6 output alone.'
+      'In the final view, the question becomes where all of these signals converge: land conversion, warming, dry-season stress, weaker ecosystem buffering, and declining productivity.',
+      'Those overlaps mark the places where the Amazon’s carbon sink appears most vulnerable, and where the balance is most likely to tip toward fragility.'
     ]
   }
-];
-
-export const toggles = [
-  'Land conversion',
-  'Warming',
-  'Dry-season stress',
-  'Vegetation response',
-  'Carbon fragility'
 ];

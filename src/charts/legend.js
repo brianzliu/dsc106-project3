@@ -1,15 +1,40 @@
 import * as d3 from 'd3';
-import { neutralColor } from '../utils/scales.js';
 
-export function renderLegend(container, { title, type = 'sequential', scale, colors, labels } = {}) {
+export function renderLegend(container, { title, type = 'sequential', scale, colors, labels, note, calculation, axisLabels } = {}) {
   container.selectAll('*').remove();
   container.attr('class', 'legend').attr('aria-label', title ?? 'Map legend');
   container.append('div').attr('class', 'legend-title').text(title ?? 'Legend');
 
   if (type === 'bivariate') {
-    const grid = container.append('div').attr('class', 'bivariate-legend');
-    colors.flat().forEach((color) => grid.append('span').style('background', color));
-    container.append('div').attr('class', 'legend-note').text(labels ?? '↗ more land conversion and stronger warming');
+    const shell = container.append('div').attr('class', 'bivariate-shell');
+    const yAxis = shell.append('div').attr('class', 'bivariate-axis bivariate-axis-y');
+    yAxis.append('span').text(axisLabels?.y ?? 'Warming →');
+
+    const stack = shell.append('div').attr('class', 'bivariate-stack');
+    const grid = stack.append('div').attr('class', 'bivariate-legend');
+    // Display order: row 0 (top) = high warming, row 2 (bottom) = low warming.
+    // Data order in `colors`: row = land rank, col = warming rank. Reorient so that
+    // the grid reads land conversion along x and warming along y.
+    for (let warmingRank = 2; warmingRank >= 0; warmingRank -= 1) {
+      for (let landRank = 0; landRank < 3; landRank += 1) {
+        grid.append('span')
+          .attr('class', 'bivariate-cell')
+          .style('background', colors[landRank][warmingRank])
+          .attr('aria-label', `Land rank ${landRank + 1}, warming rank ${warmingRank + 1}`);
+      }
+    }
+    stack.append('div').attr('class', 'bivariate-axis bivariate-axis-x')
+      .append('span').text(axisLabels?.x ?? 'Land conversion →');
+
+    if (labels) {
+      container.append('div').attr('class', 'legend-note').text(labels);
+    }
+    if (note) {
+      container.append('div').attr('class', 'legend-note legend-definition').text(note);
+    }
+    if (calculation) {
+      container.append('div').attr('class', 'legend-note legend-calculation').text(`Calculated as: ${calculation}`);
+    }
     return;
   }
 
@@ -20,10 +45,16 @@ export function renderLegend(container, { title, type = 'sequential', scale, col
       row.append('span').attr('class', 'category-swatch').style('background', color);
       row.append('span').attr('class', 'category-label').text(name);
     });
+    if (note) {
+      container.append('div').attr('class', 'legend-note legend-definition').text(note);
+    }
+    if (calculation) {
+      container.append('div').attr('class', 'legend-note legend-calculation').text(`Calculated as: ${calculation}`);
+    }
     return;
   }
 
-  const width = 180;
+  const width = 200;
   const height = 12;
   const id = `grad-${Math.random().toString(36).slice(2)}`;
   const svg = container.append('svg').attr('width', width).attr('height', 44).attr('role', 'img');
@@ -36,8 +67,13 @@ export function renderLegend(container, { title, type = 'sequential', scale, col
   svg.append('rect').attr('width', width).attr('height', height).attr('rx', 6).style('fill', `url(#${id})`);
   if (scale?.domain) {
     const domain = scale.domain();
-    svg.append('text').attr('x', 0).attr('y', 32).text(d3.format('.2~f')(domain[0]));
-    svg.append('text').attr('x', width).attr('y', 32).attr('text-anchor', 'end').text(d3.format('.2~f')(domain[domain.length - 1]));
+    svg.append('text').attr('x', 0).attr('y', 30).attr('class', 'legend-tick').text(d3.format('.2~f')(domain[0]));
+    svg.append('text').attr('x', width).attr('y', 30).attr('text-anchor', 'end').attr('class', 'legend-tick').text(d3.format('.2~f')(domain[domain.length - 1]));
   }
-  container.append('div').attr('class', 'legend-note').html(`<span class="neutral-swatch" style="background:${neutralColor}"></span> insufficient data`);
+  if (note) {
+    container.append('div').attr('class', 'legend-note legend-definition').text(note);
+  }
+  if (calculation) {
+    container.append('div').attr('class', 'legend-note legend-calculation').text(`Calculated as: ${calculation}`);
+  }
 }

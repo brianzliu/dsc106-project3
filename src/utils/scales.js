@@ -33,13 +33,16 @@ export function riskScale(rows) {
   return d3.scaleSequential(d3.interpolateMagma).domain(extent);
 }
 
+// Bivariate palette: rows = land conversion (low → high), cols = warming (cool → hot).
+// Earth tones along the land axis, heat tones along the warming axis, deep brick at both extremes.
+export const bivariatePalette = [
+  ['#f1ead7', '#e9b797', '#d6735c'], // low conversion
+  ['#dab780', '#c98c63', '#a8543b'], // mid conversion
+  ['#9c6c2c', '#7a4621', '#4d1d0e']  // high conversion
+];
+
 export function bivariateColor(landRank, warmingRank) {
-  const palette = [
-    ['#e8e8e8', '#ace4e4', '#5ac8c8'],
-    ['#dfb0d6', '#a5add3', '#5698b9'],
-    ['#be64ac', '#8c62aa', '#3b4994']
-  ];
-  return palette[landRank]?.[warmingRank] ?? neutralColor;
+  return bivariatePalette[landRank]?.[warmingRank] ?? neutralColor;
 }
 
 export function quantileRank(scale, value) {
