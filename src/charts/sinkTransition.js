@@ -238,6 +238,11 @@ export function renderSinkTransition({
   const { colorScale, bounds } = binnedChangeScale(values, extent);
   const wrapper = container.append('div').attr('class', 'sink-transition');
   const mapCard = wrapper.append('div').attr('class', 'sink-map-card');
+
+  if (revealPhase < 2) {
+    const overlay = mapCard.append('div').attr('class', 'amazon-reveal-overlay');
+    overlay.append('span').attr('class', 'amazon-reveal-text').text('The Amazon');
+  }
   const chartHeight = Math.max(320, height - 18);
   const svg = mapCard.append('svg')
     .attr('viewBox', `0 0 ${width} ${chartHeight}`)
@@ -330,20 +335,6 @@ export function renderSinkTransition({
             .attr('stroke-dashoffset', 0);
         }
 
-        const [labelX, labelY] = path.centroid(amazonBoundary);
-        if (Number.isFinite(labelX) && Number.isFinite(labelY)) {
-          boundaryLayer.append('text')
-            .attr('class', 'amazon-reveal-label')
-            .attr('x', labelX)
-            .attr('y', labelY)
-            .attr('text-anchor', 'middle')
-            .style('opacity', 0)
-            .text('The Amazon')
-            .transition()
-            .delay(420)
-            .duration(820)
-            .style('opacity', 1);
-        }
       }
     });
   }
