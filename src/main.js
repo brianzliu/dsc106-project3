@@ -315,23 +315,29 @@ async function loadData() {
     '/data/amazon_cmip6_grid.sample.json'
   ];
 
+  const parseJsonResponse = async (response, path) => {
+    const text = await response.text();
+    const trimmed = text.trim();
+    if (trimmed.startsWith('<!DOCTYPE html') || trimmed.startsWith('<html')) {
+      throw new Error(`Expected JSON at ${path}, got HTML instead.`);
+    }
+    try {
+      return JSON.parse(text);
+    } catch (error) {
+      throw new Error(`Expected JSON at ${path}, but the response could not be parsed.`);
+    }
+  };
+
   for (const path of candidates) {
     try {
       const response = await fetch(path);
       if (!response.ok) throw new Error(`Missing ${path}`);
-      const contentType = response.headers.get('content-type') ?? '';
-      if (!contentType.includes('json')) {
-        throw new Error(`Expected JSON at ${path}, got ${contentType || 'unknown content type'}.`);
-      }
-      const rows = await response.json();
+      const rows = await parseJsonResponse(response, path);
       let meta = null;
       try {
         const metaResponse = await fetch(`${path}.meta.json`);
         if (metaResponse.ok) {
-          const metaType = metaResponse.headers.get('content-type') ?? '';
-          if (metaType.includes('json')) {
-            meta = await metaResponse.json();
-          }
+          meta = await parseJsonResponse(metaResponse, `${path}.meta.json`);
         }
       } catch (error) {
         console.warn(`Missing ${path}.meta.json`);
