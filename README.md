@@ -21,6 +21,37 @@ npm run build
 
 The app prefers `public/data/amazon_cmip6_grid.cesm2.json` when present, then falls back to `public/data/amazon_cmip6_grid.hybrid.json`, `public/data/amazon_cmip6_grid.json`, and finally `public/data/amazon_cmip6_grid.sample.json`.
 
+## Vercel deployment
+
+This repo is ready to deploy on Vercel as a Vite app:
+
+- Framework Preset: `Vite`
+- Root Directory: `.`
+- Build Command: `npm run build`
+- Output Directory: `dist`
+
+The repo includes two Vercel-specific files:
+
+- `.vercelignore`: excludes non-runtime artifacts such as `large-files-to-zip/`, `data/`, `scripts/`, and local caches from CLI-based deployments
+
+For this project, the runtime files you should keep deployed are:
+
+- `public/data/amazon_cmip6_grid.cesm2.json`
+- `public/data/amazon_cmip6_grid.cesm2.json.meta.json`
+- `public/data/countries-50m.json`
+- any other assets the frontend imports directly from `public/`
+
+Files that are useful for analysis or archiving but are not needed by the deployed site:
+
+- `large-files-to-zip/`
+- `data/raw/`
+- `data/figures/`
+- `scripts/`
+
+Important note: `.vercelignore` helps exclude files from Vercel deployments, especially when deploying with the Vercel CLI. For Git-based Vercel projects, you should still keep genuinely large artifacts out of the repository whenever possible.
+
+This app does not need a catch-all Vercel rewrite right now because it is served from `/` and does not use client-side URL routes. A broad SPA rewrite like `/(.*) -> /index.html` can break the app by intercepting `public/data/*.json` requests and serving HTML instead of JSON.
+
 ## Expected data schema
 
 Each row in `public/data/amazon_cmip6_grid.json` should represent one Amazon grid cell:

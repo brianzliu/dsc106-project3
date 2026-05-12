@@ -319,11 +319,20 @@ async function loadData() {
     try {
       const response = await fetch(path);
       if (!response.ok) throw new Error(`Missing ${path}`);
+      const contentType = response.headers.get('content-type') ?? '';
+      if (!contentType.includes('json')) {
+        throw new Error(`Expected JSON at ${path}, got ${contentType || 'unknown content type'}.`);
+      }
       const rows = await response.json();
       let meta = null;
       try {
         const metaResponse = await fetch(`${path}.meta.json`);
-        if (metaResponse.ok) meta = await metaResponse.json();
+        if (metaResponse.ok) {
+          const metaType = metaResponse.headers.get('content-type') ?? '';
+          if (metaType.includes('json')) {
+            meta = await metaResponse.json();
+          }
+        }
       } catch (error) {
         console.warn(`Missing ${path}.meta.json`);
       }
@@ -350,5 +359,13 @@ loadData().then(({ rows, path, meta }) => {
   }
   updateSourceLabel();
   render();
+}).catch((error) => {
+  console.error(error);
+  d3.select('#detail-panel').html(`
+    <h3>Data failed to load</h3>
+    <p>${error.message}</p>
+    <p>If this is deployed on Vercel, check that rewrites are not intercepting <code>/data/*.json</code>.</p>
+  `);
+  d3.select('#legend').html('<div class="legend-title">Load error</div><p class="legend-note">The app shell loaded, but the dataset request did not return JSON.</p>');
 });
 window.addEventListener('resize', () => render());

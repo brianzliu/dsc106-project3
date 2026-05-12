@@ -3,6 +3,8 @@ dist/
 .DS_Store
 *.log
 amazon-climate-stress-story.png
+.vercel/
 .cache/
 scripts/__pycache__/
 large-files-to-zip/
+.vercel
