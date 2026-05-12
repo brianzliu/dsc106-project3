@@ -6,7 +6,7 @@ export const storySteps = [
     toggle: 'Warming',
     body: [
       'Gatti et al. (2021) found that carbon-source behavior is spatially uneven, with stronger signals in eastern and southeastern Amazonia where deforestation, warming, and moisture stress coincide.',
-      'This scrollytelling view uses gridded CMIP6 GFDL-ESM4 variables to explore related land-climate-carbon patterns. It does not reproduce the paper’s aircraft CO₂ flux estimates.'
+      'This scrollytelling view uses gridded CMIP6 variables to explore related land-climate-carbon patterns. It does not reproduce the paper’s aircraft CO₂ flux estimates.'
     ]
   },
   {

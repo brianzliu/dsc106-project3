@@ -13,7 +13,7 @@ function ensureBasemap() {
 
 // Metrics are resolved in order: prefer the primary key; fall back if all values are null.
 const metrics = [
-  { key: 'tas_change', label: 'Local warming (land-use effect)', unit: 'K' },
+  { key: 'tas_change', label: 'Temperature change', unit: '°C' },
   { key: 'pr_dry_change', label: 'Dry-season precipitation', fallback: 'evspsbl_change', fallbackLabel: 'Evapotranspiration change', unit: 'mm/day' },
   { key: 'mrsos_dry_change', label: 'Dry-season soil moisture', fallback: 'evspsbl_change', fallbackLabel: 'Evapotranspiration change', unit: 'kg m⁻²' },
   { key: 'hurs_dry_change', label: 'Dry-season humidity', fallback: 'evspsbl_change', fallbackLabel: 'Evapotranspiration change', unit: '%' }

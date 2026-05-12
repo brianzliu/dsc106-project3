@@ -16,7 +16,8 @@ const state = {
   seasonMode: 'dry',
   pinned: null,
   hovered: null,
-  brushedIds: new Set()
+  brushedIds: new Set(),
+  sourceLabel: 'CMIP6 grid data'
 };
 
 const format = d3.format('.2f');
@@ -88,12 +89,16 @@ function updateNarrative() {
   d3.selectAll('.toggle-group button').classed('active', (d) => d === state.activeToggle);
 }
 
+function updateSourceLabel() {
+  d3.select('#header-eyebrow').text(state.sourceLabel);
+}
+
 // ─── Layout ────────────────────────────────────────────────────
 
 function layout() {
   app.html(`
     <header class="app-header">
-      <span class="header-eyebrow">CMIP6 GFDL-ESM4</span>
+      <span class="header-eyebrow" id="header-eyebrow">CMIP6 grid data</span>
       <span class="header-title">Amazon land conversion, dry-season stress &amp; carbon-sink fragility</span>
     </header>
     <div class="walkthrough">
@@ -176,6 +181,7 @@ function layout() {
   });
 
   updateNarrative();
+  updateSourceLabel();
 }
 
 // ─── Chart sizing ───────────────────────────────────────────────
@@ -263,7 +269,9 @@ function render() {
     renderChoropleth({ svg, legend, ...common, key: 'land_conversion_change', title: 'Crop + pasture change', palette: ['#fff7bc', '#7f2704'] });
   }
   if (step.mode === 'bivariate') {
-    renderBivariateMap({ svg, legend, ...common, warmingKey: state.seasonMode === 'annual' ? 'tas_change' : 'tasmax_change' });
+    const hasTasmax = state.rows.some((row) => finiteNumber(row.tasmax_change) !== null);
+    const warmingKey = state.seasonMode === 'annual' || !hasTasmax ? 'tas_change' : 'tasmax_change';
+    renderBivariateMap({ svg, legend, ...common, warmingKey });
   }
   if (step.mode === 'smallMultiples') {
     svg.style('display', 'none');
@@ -300,22 +308,47 @@ function render() {
 // ─── Bootstrap ─────────────────────────────────────────────────
 
 async function loadData() {
-  const primary = '/data/amazon_cmip6_grid.json';
-  const fallback = '/data/amazon_cmip6_grid.sample.json';
-  try {
-    const response = await fetch(primary);
-    if (!response.ok) throw new Error(`Missing ${primary}`);
-    return response.json();
-  } catch (error) {
-    console.warn(`${error.message}; loading sample data instead.`);
-    const sample = await fetch(fallback);
-    return sample.json();
+  const candidates = [
+    '/data/amazon_cmip6_grid.cesm2.json',
+    '/data/amazon_cmip6_grid.hybrid.json',
+    '/data/amazon_cmip6_grid.json',
+    '/data/amazon_cmip6_grid.sample.json'
+  ];
+
+  for (const path of candidates) {
+    try {
+      const response = await fetch(path);
+      if (!response.ok) throw new Error(`Missing ${path}`);
+      const rows = await response.json();
+      let meta = null;
+      try {
+        const metaResponse = await fetch(`${path}.meta.json`);
+        if (metaResponse.ok) meta = await metaResponse.json();
+      } catch (error) {
+        console.warn(`Missing ${path}.meta.json`);
+      }
+      return { rows, path, meta };
+    } catch (error) {
+      console.warn(error.message);
+    }
   }
+
+  throw new Error('No Amazon grid dataset could be loaded.');
 }
 
 layout();
-loadData().then((data) => {
-  state.rows = prepareRows(data);
+loadData().then(({ rows, path, meta }) => {
+  state.rows = prepareRows(rows);
+  if (meta?.model) {
+    state.sourceLabel = `CMIP6 ${meta.model} native grid`;
+  } else if (path.includes('hybrid')) {
+    state.sourceLabel = 'CMIP6 hybrid grid';
+  } else if (path.includes('sample')) {
+    state.sourceLabel = 'Sample grid data';
+  } else {
+    state.sourceLabel = 'CMIP6 story grid';
+  }
+  updateSourceLabel();
   render();
 });
 window.addEventListener('resize', () => render());

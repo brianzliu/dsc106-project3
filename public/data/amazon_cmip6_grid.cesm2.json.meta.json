@@ -1,0 +1,119 @@
+{
+  "dataset": "CESM2 native-grid historical comparison",
+  "model": "CESM2",
+  "member": "r1i1p1f1",
+  "early_experiment": "historical",
+  "late_experiment": "historical",
+  "early_years": [
+    1850,
+    1851,
+    1852,
+    1853,
+    1854,
+    1855,
+    1856,
+    1857,
+    1858,
+    1859,
+    1860,
+    1861,
+    1862,
+    1863,
+    1864,
+    1865,
+    1866,
+    1867,
+    1868,
+    1869
+  ],
+  "late_years": [
+    1995,
+    1996,
+    1997,
+    1998,
+    1999,
+    2000,
+    2001,
+    2002,
+    2003,
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014
+  ],
+  "bbox": {
+    "west": -85.0,
+    "east": -30.0,
+    "south": -25.0,
+    "north": 10.0
+  },
+  "dry_months": [
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "notes": [
+    "No synthetic fill values were used.",
+    "tasmax fields are null because native-grid CESM2 historical public monthly tasmax was not found in the public Zarr archive used here.",
+    "pr and evspsbl were converted from kg m-2 s-1 to mm/day.",
+    "gpp and nbp were converted from kg m-2 s-1 to gC m-2 day-1.",
+    "tas means were converted from K to degC.",
+    "The Amazon mask follows the existing app grid footprint."
+  ],
+  "sources": {
+    "tas": {
+      "source_variable": "tas",
+      "early_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/tas/gn/v20190308/",
+      "late_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/tas/gn/v20190308/"
+    },
+    "pr_dry": {
+      "source_variable": "pr",
+      "early_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/pr/gn/v20190401/",
+      "late_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/pr/gn/v20190401/"
+    },
+    "hurs_dry": {
+      "source_variable": "hurs",
+      "early_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/hurs/gn/v20190308/",
+      "late_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/hurs/gn/v20190308/"
+    },
+    "evspsbl": {
+      "source_variable": "evspsbl",
+      "early_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/evspsbl/gn/v20190308/",
+      "late_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Amon/evspsbl/gn/v20190308/"
+    },
+    "mrsos_dry": {
+      "source_variable": "mrsos",
+      "early_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Lmon/mrsos/gn/v20190308/",
+      "late_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Lmon/mrsos/gn/v20190308/"
+    },
+    "lai": {
+      "source_variable": "lai",
+      "early_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Lmon/lai/gn/v20190308/",
+      "late_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Lmon/lai/gn/v20190308/"
+    },
+    "gpp": {
+      "source_variable": "gpp",
+      "early_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Lmon/gpp/gn/v20190308/",
+      "late_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Lmon/gpp/gn/v20190308/"
+    },
+    "nbp": {
+      "source_variable": "nbp",
+      "early_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Lmon/nbp/gn/v20190308/",
+      "late_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Lmon/nbp/gn/v20190308/"
+    },
+    "fracLut": {
+      "early_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Eyr/fracLut/gn/v20190308/",
+      "late_store": "gs://cmip6/CMIP6/CMIP/NCAR/CESM2/historical/r1i1p1f1/Eyr/fracLut/gn/v20190308/",
+      "requested": "primary_and_secondary_land=0, pastures=1, crops=2, urban=3"
+    }
+  }
+}

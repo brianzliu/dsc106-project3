@@ -1,10 +1,10 @@
 # Amazon Climate-Stress Scrollytelling
 
-This project implements an interactive D3 v7 scrollytelling visualization about Amazon land conversion, dry-season warming, moisture stress, vegetation response, and carbon-sink fragility using preprocessed CMIP6 GFDL-ESM4 grid data.
+This project implements an interactive D3 v7 scrollytelling visualization about Amazon land conversion, dry-season warming, moisture stress, vegetation response, and carbon-sink fragility using preprocessed CMIP6 grid data.
 
 The scientific framing is inspired by Gatti et al. 2021, **“Amazonia as a carbon source linked to deforestation and climate change.”** The story intentionally focuses on the climate-stress mechanism emphasized by the paper: land conversion and deforestation are associated with hotter and drier regional conditions, especially in the dry season, and those stresses can weaken vegetation function and carbon uptake.
 
-> Methods caveat: This visualization is inspired by Gatti et al. 2021 and uses CMIP6 GFDL-ESM4 variables to explore related gridded land-climate-carbon patterns. It does not reproduce the paper’s aircraft CO2 flux estimates.
+> Methods caveat: This visualization is inspired by Gatti et al. 2021 and uses CMIP6 gridded variables to explore related land-climate-carbon patterns. It does not reproduce the paper’s aircraft CO2 flux estimates.
 
 ## How to run locally
 
@@ -19,7 +19,7 @@ For a production build:
 npm run build
 ```
 
-The app loads `public/data/amazon_cmip6_grid.json` first. If that file is missing, it falls back to `public/data/amazon_cmip6_grid.sample.json`.
+The app prefers `public/data/amazon_cmip6_grid.cesm2.json` when present, then falls back to `public/data/amazon_cmip6_grid.hybrid.json`, `public/data/amazon_cmip6_grid.json`, and finally `public/data/amazon_cmip6_grid.sample.json`.
 
 ## Expected data schema
 
@@ -58,6 +58,116 @@ Additional early/late fields such as `crop_early`, `crop_late`, `tas_early`, and
 5. Re-run `npm run dev` or `npm run build`.
 
 `public/data/amazon_cmip6_grid.sample.json` contains 20 fake/demo cells with plausible directional changes so all seven story frames render without the full dataset.
+
+## Hybrid finer-grid atmospheric pipeline
+
+If you want the Amazon story to use finer atmospheric fields while keeping the
+existing coarse land / carbon variables, the repo now supports a hybrid build:
+
+1. Download finer NEX-GDDP-CMIP6 subsets for `tas`, `tasmax`, `pr`, and `hurs`.
+2. Aggregate those 0.25 degree fields back onto the existing coarse CMIP6 story grid.
+3. Preserve the coarse `land_conversion_change`, `mrsos`, `evspsbl`, `lai`, `gpp`, and `nbp` fields from the base JSON.
+
+The helper scripts live in `dsc106-project3/scripts/`:
+
+- `download_nex_gddp_cmip6_subset.py`
+- `build_hybrid_amazon_grid.py`
+
+Example download for a historical early period:
+
+```bash
+python3 dsc106-project3/scripts/download_nex_gddp_cmip6_subset.py \
+  --model GFDL-ESM4 \
+  --scenario historical \
+  --years 1995-2004 \
+  --variables tas tasmax pr hurs \
+  --outdir dsc106-project3/data/nex_gddp_amazon \
+  --insecure
+```
+
+Example download for a later future period:
+
+```bash
+python3 dsc106-project3/scripts/download_nex_gddp_cmip6_subset.py \
+  --model GFDL-ESM4 \
+  --scenario ssp585 \
+  --years 2040-2059 \
+  --variables tas tasmax pr hurs \
+  --outdir dsc106-project3/data/nex_gddp_amazon \
+  --insecure
+```
+
+Then build the hybrid app JSON:
+
+```bash
+python3 dsc106-project3/scripts/build_hybrid_amazon_grid.py \
+  --base-grid dsc106-project3/public/data/amazon_cmip6_grid.json \
+  --early-root dsc106-project3/data/nex_gddp_amazon/GFDL-ESM4/historical \
+  --late-root dsc106-project3/data/nex_gddp_amazon/GFDL-ESM4/ssp585 \
+  --early-years 1995-2004 \
+  --late-years 2040-2059 \
+  --variables tas tasmax pr hurs \
+  --output dsc106-project3/public/data/amazon_cmip6_grid.hybrid.json
+```
+
+This produces:
+
+- `amazon_cmip6_grid.hybrid.json`: app-ready grid rows
+- `amazon_cmip6_grid.hybrid.json.meta.json`: provenance for the fine-field merge
+
+Supporting raw assets now live inside the app project as well:
+
+- `dsc106-project3/data/raw/deforestation_metrics_gfdl_esm4_historical.npz`
+- `dsc106-project3/data/figures/`
+
+Important caveats:
+
+- This improves the granularity of atmospheric fields only. It does not create finer native CMIP6 `mrsos`, `evspsbl`, `lai`, `gpp`, or `nbp`.
+- `pr` is converted to `mm/day` when the NEX source units are flux units (`kg m-2 s-1`).
+- NEX longitude is converted from `0..360` to `-180..180` before aggregation.
+
+## Native CESM2 pipeline
+
+If you want a no-fake build from one public Earth-system model that includes
+`mrsos`, `evspsbl`, `lai`, `gpp`, and `nbp`, the repo now includes a native CESM2
+builder:
+
+- `build_cesm2_native_grid.py`
+
+Default build:
+
+- model: `CESM2`
+- member: `r1i1p1f1`
+- early period: `1850-1869`
+- late period: `1995-2014`
+- experiments: `historical` for both periods
+
+This historical-only default is intentional. In the public native-grid Zarr archive
+used here, the full CESM2 monthly stack needed by the story is available for
+historical output, while some future scenario combinations are incomplete. The
+builder does not invent missing scenario variables.
+
+Run it like this:
+
+```bash
+python3 dsc106-project3/scripts/build_cesm2_native_grid.py \
+  --output dsc106-project3/public/data/amazon_cmip6_grid.cesm2.json \
+  --insecure \
+  --overwrite
+```
+
+This produces:
+
+- `amazon_cmip6_grid.cesm2.json`: app-ready native CESM2 Amazon cells
+- `amazon_cmip6_grid.cesm2.json.meta.json`: source stores, periods, and unit conversions
+
+Important caveats:
+
+- No synthetic fill or interpolation is used. Missing variables stay missing.
+- `tasmax_*` is null in the default CESM2 historical build because the public native-grid monthly `tasmax` store was not found for this model/member/archive combination.
+- `pr` and `evspsbl` are converted from `kg m-2 s-1` to `mm/day`.
+- `gpp` and `nbp` are converted from `kg m-2 s-1` to `gC m-2 day-1`.
+- `tas` means are converted from Kelvin to Celsius before `tas_change` is computed.
 
 ## Score computations
 
