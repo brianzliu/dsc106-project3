@@ -1,6 +1,6 @@
-large-files-to-zip
-.cache
-data
-scripts
-dist
-.gitkeep
+/large-files-to-zip
+/.cache
+/data
+/scripts
+/dist
+/.gitkeep
