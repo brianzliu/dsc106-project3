@@ -765,11 +765,23 @@ body {
   transform: translateY(-1px);
 }
 
-.outro-reference {
+.outro-reference-row {
   position: absolute;
   bottom: clamp(1.4rem, 3vh, 2.4rem);
   left: 50%;
   transform: translateX(-50%);
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.65rem;
+  max-width: calc(100vw - 2rem);
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+
+.outro-reference {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -783,8 +795,8 @@ body {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   text-decoration: none;
-  opacity: 0;
-  transition: opacity 0.7s ease, background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+  opacity: inherit;
+  transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
 }
 .outro-reference:hover {
   background: rgba(247, 241, 231, 0.14);
@@ -807,7 +819,7 @@ body {
   transform: translateY(0);
   transition-delay: 1.25s;
 }
-.outro-overlay:not(.is-hidden) .outro-reference {
+.outro-overlay:not(.is-hidden) .outro-reference-row {
   opacity: 1;
   transition-delay: 1.55s;
 }
@@ -816,16 +828,20 @@ body {
   .outro-overlay,
   .outro-line,
   .outro-actions,
-  .outro-reference {
+  .outro-reference-row {
     transition: none !important;
   }
   .outro-overlay:not(.is-hidden) .outro-tagline,
   .outro-overlay:not(.is-hidden) .outro-detail,
-  .outro-overlay:not(.is-hidden) .outro-actions,
-  .outro-overlay:not(.is-hidden) .outro-reference {
+  .outro-overlay:not(.is-hidden) .outro-actions {
     transition-delay: 0s !important;
     opacity: 1;
     transform: none;
+  }
+  .outro-overlay:not(.is-hidden) .outro-reference-row {
+    transition-delay: 0s !important;
+    opacity: 1;
+    transform: translateX(-50%);
   }
 }
 
@@ -833,7 +849,8 @@ body {
   .outro-overlay { padding: 1.2rem; }
   .outro-tagline { font-size: clamp(1.6rem, 7vw, 2.4rem); }
   .outro-detail { font-size: 0.98rem; }
-  .outro-reference { bottom: 1rem; font-size: 0.66rem; }
+  .outro-reference-row { bottom: 1rem; max-width: 100%; transform: translateX(-50%); }
+  .outro-reference { font-size: 0.66rem; }
 }
 
 #main-map {

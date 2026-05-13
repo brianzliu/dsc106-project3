@@ -363,12 +363,20 @@ function layout() {
           <button type="button" class="outro-button outro-button-restart" id="outro-restart" aria-label="Restart the story from the beginning">Start over ↺</button>
         </div>
       </div>
-      <a class="outro-reference" id="outro-reference"
-         href="https://www.nature.com/articles/s41586-021-03629-6"
-         target="_blank" rel="noopener noreferrer"
-         aria-label="Open the Gatti 2021 Nature paper in a new tab">
-        Reference paper ↗
-      </a>
+      <div class="outro-reference-row" role="group" aria-label="References">
+        <a class="outro-reference" id="outro-reference"
+           href="https://www.nature.com/articles/s41586-021-03629-6"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Open the Gatti 2021 Nature paper in a new tab">
+          Reference paper ↗
+        </a>
+        <a class="outro-reference" id="outro-writeup"
+           href="https://docs.google.com/document/d/10_D53uiqVVU8wZRlIv-LhMRPrzkj1C3Hb2o_H__wIAw/edit?tab=t.0"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="Open the project write-up in Google Docs">
+          Write-up ↗
+        </a>
+      </div>
     </div>
     <div id="tooltip" role="status" aria-live="polite"></div>
   `);
