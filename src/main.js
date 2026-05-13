@@ -698,11 +698,12 @@ async function parseJsonResponse(response, path) {
 }
 
 async function loadData() {
+  const base = import.meta.env.BASE_URL;
   const candidates = [
-    '/data/amazon_cmip6_grid.cesm2.json',
-    '/data/amazon_cmip6_grid.hybrid.json',
-    '/data/amazon_cmip6_grid.json',
-    '/data/amazon_cmip6_grid.sample.json'
+    `${base}data/amazon_cmip6_grid.cesm2.json`,
+    `${base}data/amazon_cmip6_grid.hybrid.json`,
+    `${base}data/amazon_cmip6_grid.json`,
+    `${base}data/amazon_cmip6_grid.sample.json`
   ];
 
   for (const path of candidates) {
@@ -729,7 +730,8 @@ async function loadData() {
 }
 
 async function loadTimelineData() {
-  const path = '/data/amazon_nbp_timeline.cesm2.json';
+  const base = import.meta.env.BASE_URL;
+  const path = `${base}data/amazon_nbp_timeline.cesm2.json`;
   const response = await fetch(path);
   if (!response.ok) throw new Error(`Missing ${path}`);
   return parseJsonResponse(response, path);

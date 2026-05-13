@@ -9,7 +9,7 @@ const SOUTH_AMERICA_ISO = new Set([
 
 async function loadTopoJSON() {
   if (cache) return cache;
-  const topo = await d3.json('/data/countries-50m.json');
+  const topo = await d3.json(`${import.meta.env.BASE_URL}data/countries-50m.json`);
   const countries = feature(topo, topo.objects.countries);
   const land = feature(topo, topo.objects.land);
   cache = { countries, land };
@@ -31,7 +31,7 @@ export async function getLand() {
 
 export async function getAmazonBoundary() {
   if (amazonBoundaryCache) return amazonBoundaryCache;
-  const geojson = await d3.json('/data/amazon_biogeographic_boundary.geojson');
+  const geojson = await d3.json(`${import.meta.env.BASE_URL}data/amazon_biogeographic_boundary.geojson`);
   amazonBoundaryCache = geojson;
   return amazonBoundaryCache;
 }
