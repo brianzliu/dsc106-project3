@@ -49,7 +49,7 @@ export function renderRiskMap({ svg, legend, rows, width, height, mapPadding, ..
   renderLegend(legend, {
     title: 'Carbon fragility score',
     scale,
-    note: 'Brighter cells are where land conversion, warming, dry-season stress, weakened evapotranspiration, productivity loss, and reduced NBP overlap most strongly.',
+    note: 'Brighter cells stack more stressors in the same place. NBP = net biome production, the net land–atmosphere carbon exchange.',
     calculation: 'Sum of standardized (z-scored) components: land conversion, warming, dry-season precipitation deficit, surface soil-moisture deficit, evapotranspiration weakening, GPP/LAI weakening, and NBP weakening. Cells must have at least three non-missing components to receive a score.'
   });
 }

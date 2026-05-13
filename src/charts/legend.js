@@ -1,9 +1,105 @@
 import * as d3 from 'd3';
 
+// Shared, body-anchored tooltip node. Using position: fixed on a body child
+// avoids clipping by .legend-section (overflow-y: auto) and .narration-panel
+// (overflow: hidden), which would otherwise crop the calculation explainer.
+let sharedTooltipEl = null;
+let activeBtnEl = null;
+
+function getSharedTooltip() {
+  if (sharedTooltipEl && document.body.contains(sharedTooltipEl)) {
+    return sharedTooltipEl;
+  }
+  const el = document.createElement('div');
+  el.className = 'legend-info-tooltip';
+  el.setAttribute('role', 'tooltip');
+  document.body.appendChild(el);
+  sharedTooltipEl = el;
+  return el;
+}
+
+function positionTooltip(btn) {
+  const tip = getSharedTooltip();
+  const btnRect = btn.getBoundingClientRect();
+  const margin = 8;
+  const viewportW = window.innerWidth;
+  // Measure after content is set; ensure visibility for measurement.
+  tip.style.visibility = 'hidden';
+  tip.style.opacity = '0';
+  tip.style.display = 'block';
+  tip.style.left = '0px';
+  tip.style.top = '0px';
+  const tipRect = tip.getBoundingClientRect();
+  const tipW = tipRect.width;
+  const tipH = tipRect.height;
+  // Prefer centered below the button, clamp inside viewport.
+  let left = btnRect.left + btnRect.width / 2 - tipW / 2;
+  left = Math.max(margin, Math.min(left, viewportW - tipW - margin));
+  let top = btnRect.bottom + 6;
+  if (top + tipH + margin > window.innerHeight) {
+    // Flip above the button if there's no room below.
+    top = Math.max(margin, btnRect.top - tipH - 6);
+  }
+  tip.style.left = `${Math.round(left)}px`;
+  tip.style.top = `${Math.round(top)}px`;
+}
+
+function showTooltip(btn, text) {
+  const tip = getSharedTooltip();
+  tip.textContent = text;
+  activeBtnEl = btn;
+  positionTooltip(btn);
+  tip.style.visibility = 'visible';
+  tip.style.opacity = '1';
+}
+
+function hideTooltip(btn) {
+  if (activeBtnEl && activeBtnEl !== btn) return;
+  const tip = sharedTooltipEl;
+  activeBtnEl = null;
+  if (!tip) return;
+  tip.style.opacity = '0';
+  tip.style.visibility = 'hidden';
+}
+
+if (typeof window !== 'undefined' && !window.__legendInfoTooltipBound) {
+  window.__legendInfoTooltipBound = true;
+  const reposition = () => {
+    if (activeBtnEl && document.body.contains(activeBtnEl)) {
+      positionTooltip(activeBtnEl);
+    } else {
+      hideTooltip();
+    }
+  };
+  window.addEventListener('scroll', reposition, true);
+  window.addEventListener('resize', reposition);
+}
+
+function renderTitleRow(container, title, calculation) {
+  const titleRow = container.append('div').attr('class', 'legend-title-row');
+  titleRow.append('span').attr('class', 'legend-title').text(title ?? 'Legend');
+  if (calculation) {
+    const text = `Calculated as: ${calculation}`;
+    const btn = titleRow.append('button')
+      .attr('class', 'legend-info-btn')
+      .attr('type', 'button')
+      .attr('aria-label', 'How this is calculated')
+      .attr('aria-describedby', 'legend-info-tooltip')
+      .text('\u24D8');
+    const node = btn.node();
+    const onEnter = () => showTooltip(node, text);
+    const onLeave = () => hideTooltip(node);
+    node.addEventListener('mouseenter', onEnter);
+    node.addEventListener('mouseleave', onLeave);
+    node.addEventListener('focus', onEnter);
+    node.addEventListener('blur', onLeave);
+  }
+}
+
 export function renderLegend(container, { title, type = 'sequential', scale, colors, labels, note, calculation, axisLabels } = {}) {
   container.selectAll('*').remove();
   container.attr('class', 'legend').attr('aria-label', title ?? 'Map legend');
-  container.append('div').attr('class', 'legend-title').text(title ?? 'Legend');
+  renderTitleRow(container, title, calculation);
 
   if (type === 'bivariate') {
     const shell = container.append('div').attr('class', 'bivariate-shell');
@@ -32,9 +128,6 @@ export function renderLegend(container, { title, type = 'sequential', scale, col
     if (note) {
       container.append('div').attr('class', 'legend-note legend-definition').text(note);
     }
-    if (calculation) {
-      container.append('div').attr('class', 'legend-note legend-calculation').text(`Calculated as: ${calculation}`);
-    }
     return;
   }
 
@@ -48,38 +141,54 @@ export function renderLegend(container, { title, type = 'sequential', scale, col
     if (note) {
       container.append('div').attr('class', 'legend-note legend-definition').text(note);
     }
-    if (calculation) {
-      container.append('div').attr('class', 'legend-note legend-calculation').text(`Calculated as: ${calculation}`);
-    }
     return;
   }
 
   const innerW = 200;
-  const height = 12;
+  const height = 14;
   const svgH = 44;
-  const id = `grad-${Math.random().toString(36).slice(2)}`;
+  const domain = scale?.domain ? scale.domain() : null;
+  const isDiverging = Array.isArray(domain) && domain.length === 3;
+  const binCount = colors?.length ?? (isDiverging ? 5 : 7);
+  const d0 = domain ? domain[0] : 0;
+  const dN = domain ? domain[domain.length - 1] : 1;
+
   const svg = container.append('svg')
     .attr('viewBox', `0 0 ${innerW} ${svgH}`)
     .attr('preserveAspectRatio', 'xMinYMin meet')
     .attr('width', '100%')
     .attr('height', null)
     .attr('role', 'img');
-  const defs = svg.append('defs');
-  const gradient = defs.append('linearGradient').attr('id', id);
-  const range = colors ?? d3.range(0, 1.01, 0.1).map((t) => scale?.(scale.domain ? d3.interpolateNumber(scale.domain()[0], scale.domain()[scale.domain().length - 1])(t) : t));
-  range.forEach((color, index) => {
-    gradient.append('stop').attr('offset', `${(index / (range.length - 1)) * 100}%`).attr('stop-color', color);
-  });
-  svg.append('rect').attr('width', innerW).attr('height', height).attr('rx', 6).style('fill', `url(#${id})`);
-  if (scale?.domain) {
-    const domain = scale.domain();
-    svg.append('text').attr('x', 0).attr('y', 30).attr('class', 'legend-tick').text(d3.format('.2~f')(domain[0]));
-    svg.append('text').attr('x', innerW).attr('y', 30).attr('text-anchor', 'end').attr('class', 'legend-tick').text(d3.format('.2~f')(domain[domain.length - 1]));
+
+  const swatchW = innerW / binCount;
+  for (let i = 0; i < binCount; i += 1) {
+    const t = (i + 0.5) / binCount;
+    const value = d0 + (dN - d0) * t;
+    let fill;
+    if (colors && colors.length) {
+      fill = colors[i] ?? colors[colors.length - 1];
+    } else if (scale) {
+      fill = scale(value);
+    } else {
+      fill = '#ccc';
+    }
+    svg.append('rect')
+      .attr('x', i * swatchW)
+      .attr('y', 0)
+      .attr('width', swatchW)
+      .attr('height', height)
+      .style('fill', fill)
+      .style('shape-rendering', 'crispEdges');
+  }
+
+  if (domain) {
+    const fmt = d3.format('.2~f');
+    const midValue = isDiverging ? domain[1] : (d0 + dN) / 2;
+    svg.append('text').attr('x', 0).attr('y', 30).attr('class', 'legend-tick').text(fmt(d0));
+    svg.append('text').attr('x', innerW / 2).attr('y', 30).attr('text-anchor', 'middle').attr('class', 'legend-tick').text(fmt(midValue));
+    svg.append('text').attr('x', innerW).attr('y', 30).attr('text-anchor', 'end').attr('class', 'legend-tick').text(fmt(dN));
   }
   if (note) {
     container.append('div').attr('class', 'legend-note legend-definition').text(note);
-  }
-  if (calculation) {
-    container.append('div').attr('class', 'legend-note legend-calculation').text(`Calculated as: ${calculation}`);
   }
 }

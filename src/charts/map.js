@@ -46,7 +46,7 @@ export function gridMagnitudeRadiusScale(maxMag, range = GRID_CELL_RADIUS_RANGE)
   return d3.scaleSqrt().domain([0, maxMag || 1]).range(range).clamp(true);
 }
 
-export function focusTransform(features, path, width, height, padding = 60) {
+export function focusTransform(features, path, width, height, padding = 60, maxScale = 2.2) {
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const feature of features) {
     const bounds = path.bounds(feature);
@@ -60,7 +60,7 @@ export function focusTransform(features, path, width, height, padding = 60) {
   const fh = maxY - minY;
   if (!Number.isFinite(fw) || !Number.isFinite(fh) || fw <= 0 || fh <= 0) return d3.zoomIdentity;
   const targetScale = Math.min((width - 2 * padding) / fw, (height - 2 * padding) / fh);
-  const scale = Math.max(1.05, Math.min(targetScale, 2.2));
+  const scale = Math.max(1.05, Math.min(targetScale, maxScale));
   const cx = (minX + maxX) / 2;
   const cy = (minY + maxY) / 2;
   const tx = width / 2 - scale * cx;
@@ -236,19 +236,8 @@ export function attachZoomAndOverviewPanel(svg, root, {
   colorFor,
   magnitudeFor,
   focus,
-  applyFocus,
-  showZoomHint = true
+  applyFocus
 }) {
-  if (showZoomHint) {
-    svg.selectAll('.zoom-hint').remove();
-    svg.append('text')
-      .attr('class', 'zoom-hint')
-      .attr('x', width - 10)
-      .attr('y', height - 10)
-      .attr('text-anchor', 'end')
-      .text('drag to pan · pinch/scroll to zoom · dbl-click to reset');
-  }
-
   const minZoom = 0.6;
   const maxZoom = 12;
   let refreshOverview = () => {};
@@ -277,17 +266,28 @@ export function attachZoomAndOverviewPanel(svg, root, {
   svg.on('dblclick.zoom', null);
   svg.on('dblclick', () => svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity));
 
-  if (focus?.regions) {
-    const focusFeatures = features.filter((feature) => focus.regions.includes(feature.properties.region));
-    if (focusFeatures.length) {
-      const target = focusTransform(focusFeatures, path, width, height);
-      const selection = applyFocus
-        ? svg.transition().duration(640).ease(d3.easeCubicInOut)
-        : svg;
-      selection.call(zoom.transform, target);
-      if (applyFocus && selection !== svg) {
-        selection.on('end.overview', () => refreshOverview());
-      }
+  // Resolve the set of features to frame: explicit cell ids take precedence
+  // (e.g. data-driven per-variable zoom), then fall back to whole regions.
+  let focusFeatures = null;
+  if (Array.isArray(focus?.featureIds) && focus.featureIds.length) {
+    const idSet = new Set(focus.featureIds);
+    focusFeatures = features.filter((feature) => idSet.has(feature.id));
+  } else if (focus?.regions) {
+    focusFeatures = features.filter((feature) => focus.regions.includes(feature.properties.region));
+  }
+  if (focusFeatures && focusFeatures.length) {
+    const target = focusTransform(
+      focusFeatures, path, width, height,
+      focus?.padding ?? 60,
+      focus?.maxScale ?? 2.2
+    );
+    const duration = focus?.duration ?? 640;
+    const selection = applyFocus
+      ? svg.transition().duration(duration).ease(d3.easeCubicInOut)
+      : svg;
+    selection.call(zoom.transform, target);
+    if (applyFocus && selection !== svg) {
+      selection.on('end.overview', () => refreshOverview());
     }
   }
 

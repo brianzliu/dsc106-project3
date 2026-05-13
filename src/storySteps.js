@@ -10,8 +10,8 @@ export const storySteps = [
       detail: 'Cells outlined in red have flipped from absorbing carbon in 1850 to releasing it by 2014.'
     },
     body: [
-      'The story begins with a tension: the Amazon has long helped <strong>absorb carbon</strong>, but that role is becoming <strong>less secure</strong> in parts of the basin.',
-      'This first map shows the <strong>net change in modeled carbon balance</strong> from 1850 to 2014. The <strong>red-outlined cells</strong> mark where the basin has flipped from <strong>carbon sink to carbon source</strong>.'
+      'For a long time the Amazon has done us a quiet favor: it <strong>pulls more carbon out of the air than it puts back in</strong>. That favor is now <strong>slipping in parts of the basin</strong>.',
+      'This first map shows how that balance has shifted between <strong>1850 and 2014</strong>. The <strong>red-outlined cells</strong> are the places that have crossed a line — they used to <strong>absorb carbon, and now they release it</strong>.'
     ]
   },
   {
@@ -25,8 +25,9 @@ export const storySteps = [
       detail: 'Crop and pasture expansion sweeps across southern and southeastern Amazonia first.'
     },
     body: [
-      'To understand why the carbon sink weakens, the first place to look is <strong>the land itself</strong>. Forest is being replaced unevenly by <strong>crops and pasture</strong> across the basin.',
-      'These changing areas act as the <strong>first domino</strong>, showing where the landscape has already been <strong>physically transformed</strong> before the climate response comes into view.'
+      'To see why the sink is weakening, start with <strong>the land itself</strong>. Across the basin, forest has been replaced — but not evenly. Most of the cleared land has become <strong>pasture and cropland</strong>.',
+      'About <strong>17% of the Amazon</strong> has been cleared so far. Of that cleared land, roughly <strong>89% is now pasture</strong>, and another 10% grows crops.',
+      'The clearing is lopsided. Nearly <strong>27% of the eastern basin</strong> has been deforested, compared with just <strong>11% in the west</strong>. The east has already been <strong>physically reshaped</strong>, long before any climate response shows up.'
     ]
   },
   {
@@ -40,8 +41,9 @@ export const storySteps = [
       detail: 'The deepest red cells in the southeast carry both stressors at once — strong conversion and strong warming.'
     },
     body: [
-      'The next question is whether those converted places are also <strong>warming more strongly</strong>. Land-cover change is not just a change in appearance; it can <strong>reshape local climate</strong> conditions.',
-      'Where <strong>land conversion and warming overlap</strong>, the story deepens: the most altered parts of the landscape are also becoming <strong>hotter</strong>.'
+      'Next question: are those cleared places also <strong>getting hotter faster</strong>? When you swap forest for pasture, you change more than the view — you change how the local climate behaves.',
+      'The map shows where <strong>land change and warming pile up together</strong>. The most reworked parts of the landscape are also the ones <strong>heating up the most</strong>.',
+      'Across the whole basin, the year-round warming is about <strong>+1.0 °C</strong> — roughly the global rate. But the <strong>dry season</strong> tells a sharper story. Over four decades, dry-season temperatures rose <strong>+1.86 °C in the northeast</strong> and <strong>+2.54 °C in the southeast</strong>. In the two hottest months of the year, the southeast warmed by a striking <strong>+3.07 °C</strong>.'
     ]
   },
   {
@@ -55,8 +57,8 @@ export const storySteps = [
       detail: 'The same arc loses precipitation, soil moisture, and humidity together when warming hits.'
     },
     body: [
-      'Heat alone is not enough to explain the risk. The more important question is what happens when <strong>hotter conditions collide with the dry season</strong>, when water is already harder to hold onto.',
-      'Looking across <strong>precipitation, soil moisture, and humidity</strong> shows how warming turns into <strong>ecological stress</strong> when the dry season grows harsher.'
+      'Heat alone doesn\'t break a forest. The real trouble starts when <strong>hot weather hits during the dry season</strong>, when water is already scarce.',
+      'Looking at <strong>rainfall, soil moisture, and humidity</strong> side by side shows how warming turns into <strong>real stress on the ecosystem</strong> once the dry months bite harder.'
     ]
   },
   {
@@ -70,8 +72,9 @@ export const storySteps = [
       detail: 'Evapotranspiration weakens exactly where forest has been replaced — the cooling feedback breaks.'
     },
     body: [
-      'A healthy forest helps <strong>cool and regulate itself</strong> by returning moisture to the air. When that <strong>buffering process weakens</strong>, hotter and drier conditions can feed on themselves.',
-      'This is the point where land change and dry-season stress stop looking separate and start behaving like a <strong>reinforcing system</strong>.'
+      'A healthy forest <strong>air-conditions itself</strong>. Leaves release water vapor, the air cools, and that moisture often falls again as rain further west. When that recycling slows, the air gets hotter and drier — and the process feeds on itself.',
+      'That moisture-recycling cascade isn\'t a small effect. It supplies roughly <strong>25–35% of the Amazon\'s rainfall</strong> — a meaningful slice of the basin\'s ~2,200 mm of rain each year.',
+      'As eastern forests thin out, that cascade falters far beyond just the cleared areas. Dry-season rainfall has dropped by about <strong>24% in the southeast</strong>, <strong>34% in the northeast</strong>, and even <strong>20% in the lightly cleared west</strong>. At the same time, the warmer, drier air <strong>pulls more water out of every leaf it touches</strong>. This is the moment land change and dry-season stress stop being separate problems and start <strong>reinforcing each other</strong>.'
     ]
   },
   {
@@ -82,8 +85,10 @@ export const storySteps = [
     focus: null,
     annotation: null,
     body: [
-      'Once the landscape is hotter and drier, the next question is whether <strong>the vegetation itself responds</strong>. If the ecosystem is under real stress, its <strong>productivity should begin to weaken</strong>.',
-      'The scatter shifts the story from maps to evidence, showing whether the cells facing the <strong>strongest pressure</strong> are also the ones where <strong>biological performance starts to fall</strong>.'
+      'If the landscape really is hotter and drier, the plants should start to <strong>show the strain</strong>. A stressed ecosystem doesn\'t grow as vigorously as a healthy one.',
+      'One way to measure that is <strong>gross primary production</strong>, or GPP — basically <strong>how much carbon the forest pulls out of the air through photosynthesis</strong>. When GPP falls, the forest is doing less of its job.',
+      'The stakes are large. An intact Amazon holds about <strong>123 billion tonnes of carbon</strong> in its trees and soils. And yet the eastern basin — only about <strong>24% of the Amazon\'s area</strong> — is already responsible for roughly <strong>72% of the basin\'s carbon emissions</strong>. About <strong>62% of those emissions come from fires</strong>.',
+      'The scatter plot lets us check the link directly: are the places under the <strong>most pressure</strong> also the places where the forest\'s <strong>productivity is starting to fall</strong>?'
     ]
   },
   {
@@ -97,8 +102,9 @@ export const storySteps = [
       detail: 'The brightest cells stack land change, warming, drying, and productivity loss in the same place.'
     },
     body: [
-      'In the final view, the question becomes where <strong>all of these signals converge</strong>: land conversion, warming, dry-season stress, weaker ecosystem buffering, and declining productivity.',
-      'Those overlaps mark the places where the Amazon\'s carbon sink appears <strong>most vulnerable</strong>, and where the balance is most likely to <strong>tip toward fragility</strong>.'
+      'In the final view, every signal lands in the same picture: <strong>where has the land been cleared, warmed, dried out, lost its forest cooling, and lost productivity all at once</strong>?',
+      'Those overlapping pressures point to the places where the Amazon\'s carbon sink looks <strong>most fragile</strong>, and most likely to <strong>tip the wrong way</strong>.',
+      'The east-west split becomes hard to miss. Where the basin has been cleared, warmed, and dried at the same time, it has already <strong>crossed from carbon sink to carbon source</strong>. The wetter west is still hanging on — but it depends on the moisture-recycling cascade that the east can no longer keep going.'
     ]
   }
 ];

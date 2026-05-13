@@ -17,9 +17,13 @@ function ensureAmazonBoundary() {
 }
 
 function yMetricDefinition(yKey) {
-  if (yKey === 'gpp_change') return 'Each point is one grid cell. The color shows how much gross primary productivity (GPP) shifts between the comparison periods.';
-  if (yKey === 'lai_change') return 'Each point is one grid cell. The color shows how much leaf area index (LAI) shifts between the comparison periods.';
-  return 'Each point is one grid cell. The color shows how much evapotranspiration shifts between the comparison periods, used here as a vegetation-function proxy.';
+  if (yKey === 'gpp_change') {
+    return 'Gross primary production (GPP) is the carbon vegetation fixes through photosynthesis. Each point is one grid cell.';
+  }
+  if (yKey === 'lai_change') {
+    return 'Leaf area index (LAI) is the modeled one-sided leaf area per unit ground area — a structural measure of canopy cover. Each point is one grid cell.';
+  }
+  return 'Each point is one grid cell. Evapotranspiration change is used here as a vegetation-function proxy.';
 }
 
 function yMetricCalculation(yKey) {
@@ -50,11 +54,11 @@ function binnedLegendItems(scale) {
 }
 
 const summaryMetrics = [
-  { key: 'land_conversion_change', label: 'Land conversion' },
-  { key: 'tas_change', label: 'Mean warming (°C)' },
-  { key: 'mrsos_dry_change', label: 'Dry soil moisture' },
-  { key: 'gpp_change', label: 'GPP shift' },
-  { key: 'nbp_change', label: 'NBP shift' }
+  { key: 'land_conversion_change', label: 'Land conversion', hint: 'How much grid-cell land cover shifted toward crops and pasture between periods.' },
+  { key: 'tas_change', label: 'Mean warming (°C)', hint: 'Change in annual or dry-season mean near-surface air temperature, depending on the dataset.' },
+  { key: 'mrsos_dry_change', label: 'Dry soil moisture', hint: 'Change in near-surface soil moisture averaged over the dry season.' },
+  { key: 'gpp_change', label: 'GPP shift', hint: 'Change in gross primary production: carbon uptake by vegetation via photosynthesis.' },
+  { key: 'nbp_change', label: 'NBP shift', hint: 'Change in net biome production: net carbon exchange between land and atmosphere (uptake minus release).' }
 ];
 
 function median(values) {
@@ -69,7 +73,7 @@ function renderSelectionSummary(container, allRows, selectedIds) {
 
   if (!selectedIds || selectedIds.size === 0) {
     container.append('div').attr('class', 'selection-summary-empty')
-      .text('Brush a cluster of points to see how it compares with the basin.');
+      .text('No selection yet.');
     return;
   }
 
@@ -81,7 +85,7 @@ function renderSelectionSummary(container, allRows, selectedIds) {
   const table = container.append('div').attr('class', 'selection-summary-rows');
   const format = d3.format('.2~f');
 
-  summaryMetrics.forEach(({ key, label }) => {
+  summaryMetrics.forEach(({ key, label, hint }) => {
     const allVals = allRows.map((row) => finiteNumber(row[key])).filter((v) => v !== null);
     const selVals = selectedRows.map((row) => finiteNumber(row[key])).filter((v) => v !== null);
     if (allVals.length < 4 || selVals.length === 0) return;
@@ -92,7 +96,7 @@ function renderSelectionSummary(container, allRows, selectedIds) {
     const selMed = median(selVals);
 
     const row = table.append('div').attr('class', 'summary-row');
-    row.append('div').attr('class', 'summary-row-label').text(label);
+    row.append('div').attr('class', 'summary-row-label').text(label).attr('title', hint ?? '');
 
     const track = row.append('div').attr('class', 'summary-row-track');
     track.append('div').attr('class', 'summary-row-axis');
@@ -191,26 +195,19 @@ export function renderLinkedScatter({
   container.selectAll('*').remove();
 
   const shell = container.append('div').attr('class', 'scatter-shell');
+  shell.append('p')
+    .attr('class', 'scatter-instruction')
+    .text('Brush or hover points on the scatter — the map and summary stay linked. Dot size scales with mean warming (°C).');
   const scatterCard = shell.append('div').attr('class', 'scatter-card');
   const scatterStage = scatterCard.append('div').attr('class', 'scatter-stage');
-  const scatterHint = scatterStage.append('div').attr('class', 'scatter-hint');
-  scatterHint.append('span').attr('class', 'scatter-hint-pulse');
-  scatterHint.append('span').text('Hover a point or brush an empty region to compare cells.');
 
   const mapCard = shell.append('div').attr('class', 'scatter-mini');
-  mapCard.append('p').attr('class', 'scatter-mini-blurb').text('Selected cells light up here. Drag across the scatter to pick a group.');
   const mapHolder = mapCard.append('div').attr('class', 'scatter-mini-map');
   const summaryHolder = mapCard.append('div').attr('class', 'selection-summary');
 
   const scatterW = Math.max(320, Math.floor(width * 0.62));
   const scatterH = Math.max(320, height - 24);
-  const margin = { top: 32, right: 24, bottom: 60, left: 64 };
-
-  const svg = scatterStage.append('svg')
-    .attr('viewBox', `0 0 ${scatterW} ${scatterH}`)
-    .attr('preserveAspectRatio', 'xMidYMid meet')
-    .attr('role', 'img')
-    .attr('aria-label', 'Climate stress and vegetation response scatterplot');
+  const margin = { top: 32, right: 24, bottom: 78, left: 72 };
 
   const yKey = rows.some((r) => finiteNumber(r.gpp_change) !== null) ? 'gpp_change'
     : rows.some((r) => finiteNumber(r.lai_change) !== null) ? 'lai_change'
@@ -219,8 +216,23 @@ export function renderLinkedScatter({
     ? 'Evapotranspiration change (vegetation-function proxy)'
     : yKey === 'gpp_change' ? 'GPP change' : 'LAI change';
 
+  const svg = scatterStage.append('svg')
+    .attr('viewBox', `0 0 ${scatterW} ${scatterH}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet')
+    .attr('role', 'img')
+    .attr('aria-label', yKey === 'gpp_change'
+      ? 'Scatterplot of climate stress versus change in gross primary production (GPP)'
+      : yKey === 'lai_change'
+        ? 'Scatterplot of climate stress versus change in leaf area index (LAI)'
+        : 'Scatterplot of climate stress versus evapotranspiration change');
+
   const yVal = (row) => finiteNumber(row[yKey]);
   const data = rows.filter((row) => finiteNumber(row.climate_stress_score) !== null && yVal(row) !== null);
+
+  const stressIncludesEvap = rows.some((r) => finiteNumber(r.evspsbl_change) !== null);
+  const climateStressSublabel = stressIncludesEvap
+    ? 'Standardized warming plus dry-season drying, with weaker evapotranspiration folded in when available—higher values mean hotter, drier, less buffered cells.'
+    : 'Standardized warming plus dry-season drying (less rain, drier soil, and drier air when those variables exist)—higher values mean hotter, drier cells.';
 
   if (!data.length) {
     svg.append('text').attr('x', scatterW / 2).attr('y', scatterH / 2)
@@ -248,7 +260,7 @@ export function renderLinkedScatter({
     svg.append('text')
       .attr('class', 'chart-quadrant-label')
       .attr('x', scatterW - margin.right - 8)
-      .attr('y', margin.top + 16)
+      .attr('y', margin.top + 22)
       .attr('text-anchor', 'end')
       .text('high stress · weaker vegetation');
     svg.append('line')
@@ -263,8 +275,16 @@ export function renderLinkedScatter({
 
   svg.append('g').attr('class', 'chart-axis').attr('transform', `translate(0,${scatterH - margin.bottom})`).call(d3.axisBottom(x).ticks(5));
   svg.append('g').attr('class', 'chart-axis').attr('transform', `translate(${margin.left},0)`).call(d3.axisLeft(y).ticks(5));
-  svg.append('text').attr('class', 'chart-axis-label').attr('x', scatterW / 2).attr('y', scatterH - 18).attr('text-anchor', 'middle').text('Climate stress score (warmer + drier → higher)');
-  svg.append('text').attr('class', 'chart-axis-label').attr('x', -scatterH / 2).attr('y', 18).attr('transform', 'rotate(-90)').attr('text-anchor', 'middle').text(yLabel);
+  svg.append('text').attr('class', 'chart-axis-label').attr('x', scatterW / 2).attr('y', scatterH - 42).attr('text-anchor', 'middle').text('Climate stress score (warmer + drier → higher)');
+  svg.append('text').attr('class', 'chart-axis-sublabel').attr('x', scatterW / 2).attr('y', scatterH - 26).attr('text-anchor', 'middle').text(climateStressSublabel);
+
+  const yTitle = svg.append('g').attr('class', 'chart-y-axis-titles').attr('transform', `translate(22, ${scatterH / 2}) rotate(-90)`);
+  yTitle.append('text').attr('class', 'chart-axis-label').attr('text-anchor', 'middle').attr('y', 0).text(yLabel);
+  if (yKey === 'gpp_change') {
+    yTitle.append('text').attr('class', 'chart-axis-sublabel').attr('text-anchor', 'middle').attr('y', 16).text('(gross primary production)');
+  } else if (yKey === 'lai_change') {
+    yTitle.append('text').attr('class', 'chart-axis-sublabel').attr('text-anchor', 'middle').attr('y', 16).text('(leaf area index)');
+  }
 
   // Linked mini-map
   let updateMini = null;
@@ -356,8 +376,6 @@ export function renderLinkedScatter({
       hoverHaloLayer.selectAll('*').remove();
     })
     .on('click', (event, d) => onClick?.(d));
-
-  svg.append('text').attr('x', scatterW - margin.right).attr('y', margin.top - 12).attr('text-anchor', 'end').attr('class', 'chart-note').text('Brush empty space to highlight cells on the map ↗');
 
   renderLegend(legend, {
     title: yLabel,

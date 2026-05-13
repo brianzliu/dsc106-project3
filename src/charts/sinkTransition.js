@@ -276,13 +276,6 @@ export function renderSinkTransition({
   svg.on('dblclick.zoom', null);
   svg.on('dblclick', () => svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity));
 
-  svg.append('text')
-    .attr('class', 'zoom-hint')
-    .attr('x', width - 10)
-    .attr('y', chartHeight - 10)
-    .attr('text-anchor', 'end')
-    .text('drag to pan · pinch/scroll to zoom · dbl-click to reset');
-
   if (revealPhase < 2) {
     legend.selectAll('*').remove();
     return;

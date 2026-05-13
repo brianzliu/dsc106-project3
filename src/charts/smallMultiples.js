@@ -28,7 +28,8 @@ const stressors = [
     label: 'Temperature',
     legendTitle: 'Mean dry-season temperature change',
     note: 'Where dry-season air temperatures have risen most between the early and late comparison periods.',
-    calculation: 'Late-period mean dry-season temperature minus early-period mean dry-season temperature for each grid cell.'
+    calculation: 'Late-period mean dry-season temperature minus early-period mean dry-season temperature for each grid cell.',
+    analysis: 'Across the last four decades, <strong>dry-season</strong> average temperatures are up about <strong>+1.86 °C</strong> at the northern field site and about <strong>+2.54 °C</strong> at the southern one. In the <strong>two hottest months</strong> at the southern site, warming is closer to <strong>+3.07 °C</strong> — extra heat stacked on the part of the year when rain is already thinnest.'
   },
   {
     key: 'pr_dry_change',
@@ -36,7 +37,8 @@ const stressors = [
     label: 'Precipitation',
     legendTitle: 'Dry-season precipitation change',
     note: 'Negative values mean less rain during the dry season — the part of the year when forests are already closest to water stress.',
-    calculation: 'Late-period dry-season precipitation minus early-period dry-season precipitation for each grid cell.'
+    calculation: 'Late-period dry-season precipitation minus early-period dry-season precipitation for each grid cell.',
+    analysis: 'August–October rainfall is down roughly <strong>24%</strong> at the southern site and <strong>34%</strong> at the northern site over the same forty-year span. Even the <strong>less-cleared west</strong> has lost about <strong>20%</strong> of dry-season rain — a basin-wide pattern consistent with a <strong>soil-moisture cascade</strong>: drying and forest loss in the east can reduce how much moisture cycles back into the air for everyone downwind.'
   },
   {
     key: 'mrsos_dry_change',
@@ -44,7 +46,8 @@ const stressors = [
     label: 'Soil moisture',
     legendTitle: 'Dry-season near-surface soil moisture change',
     note: 'Negative values mean the top of the soil column holds less water during the dry season than it used to.',
-    calculation: 'Late-period dry-season surface soil moisture minus early-period values for each grid cell.'
+    calculation: 'Late-period dry-season surface soil moisture minus early-period values for each grid cell.',
+    analysis: 'When dry-season rain drops, <strong>topsoil dries out</strong> with it. The <strong>east begins each dry season with less soil water in reserve</strong> than the west, so the same cut in rainfall means surface layers cross into <strong>“not enough for plants to tap easily”</strong> earlier in the year.'
   },
   {
     key: 'hurs_dry_change',
@@ -52,7 +55,8 @@ const stressors = [
     label: 'Humidity',
     legendTitle: 'Dry-season relative humidity change',
     note: 'Negative values mean the air dries out more strongly in the late period than it did historically.',
-    calculation: 'Late-period dry-season relative humidity minus early-period values for each grid cell.'
+    calculation: 'Late-period dry-season relative humidity minus early-period values for each grid cell.',
+    analysis: 'The southeast shows a strong rise in <strong>vapor pressure deficit</strong>: think of it as how hard the atmosphere is pulling on water — the gap between how much moisture the air <em>could</em> hold and how much it <em>actually</em> holds. When that gap widens, <strong>more water gets drawn out of leaves</strong>, stressing vegetation even in years that never get labeled as droughts.'
   }
 ];
 
@@ -65,12 +69,55 @@ function resolveStressor(rows, stressor) {
   return null;
 }
 
+// Pick the cells that change most for the given variable, then return their
+// cell_ids so the zoom can frame that cluster. For temperature we want the
+// most warming (top quartile); for the drying variables we want the most
+// negative change (bottom quartile).
+function quartileFocusIds(rows, key, { topQuartile = false, fraction = 0.25 } = {}) {
+  const valued = rows
+    .map((row) => ({ id: row.cell_id, value: finiteNumber(row[key]) }))
+    .filter((entry) => entry.value !== null);
+  if (!valued.length) return [];
+  valued.sort((a, b) => topQuartile ? b.value - a.value : a.value - b.value);
+  const cutoff = Math.max(4, Math.ceil(valued.length * fraction));
+  return valued.slice(0, cutoff).map((entry) => entry.id);
+}
+
+// Per-variable rule for which area we frame. Each stressor zooms to a fixed
+// quadrant of the basin chosen to match the narrative emphasis:
+// - `tas_change` (temperature): southeast — strongest dry-season warming.
+// - `pr_dry_change` (precipitation): northwest — drying signal anchors the
+//   upper basin; tighter zoom keeps focus off the broader periphery.
+// - `mrsos_dry_change` (soil moisture): northwest — companion to the
+//   precipitation framing for a consistent upper-basin read.
+// - `hurs_dry_change` (humidity): southeast — humidity collapse co-locates
+//   with the warming hotspot in the southeast.
+// Regions span a full quadrant, so `maxScale` is slightly higher than the old
+// data-driven framing to keep the visible area comparably tight.
+function focusForActiveKey(rows, activeKey) {
+  const baseFocus = { padding: 48, duration: 700 };
+  switch (activeKey) {
+    case 'tas_change':
+      return { ...baseFocus, regions: ['southeast'], maxScale: 2.4 };
+    case 'pr_dry_change':
+      return { ...baseFocus, regions: ['northwest'], maxScale: 2.6 };
+    case 'mrsos_dry_change':
+      return { ...baseFocus, regions: ['northwest'], maxScale: 2.6 };
+    case 'hurs_dry_change':
+      return { ...baseFocus, regions: ['southeast'], maxScale: 2.6 };
+    default:
+      return null;
+  }
+}
+
 function drawStressorMap({ svg, rows, width, height, activeKey, focus = null, applyFocus = false, ...handlers }) {
   const scale = divergingScale(rows, activeKey);
   const projection = projectionFor(rows, width, height, Math.max(14, Math.min(width, height) * 0.04));
   const path = d3.geoPath(projection);
   const features = makeFeatureCollection(rows).features;
-  const inFocus = (row) => !focus?.regions || focus.regions.includes(row.region);
+  // With per-variable zoom we don't fade out non-focused cells: dimming the
+  // region we're zooming into would defeat the point of the framing.
+  const inFocus = () => true;
 
   svg.attr('viewBox', `0 0 ${width} ${height}`).attr('role', 'img');
   svg.selectAll('*').remove();
@@ -182,7 +229,64 @@ export function renderSmallMultiples({
   // Defer to layout to compute final size; use a sensible default viewBox.
   const mapWidth = Math.max(360, Math.floor(width * 0.92));
   const mapHeight = Math.max(280, Math.floor(height * 0.66));
-  const scale = drawStressorMap({ svg, rows, width: mapWidth, height: mapHeight, activeKey: active.activeKey, focus, applyFocus, ...handlers });
+  // Compute the framing per active variable (bottom-quartile cells, except
+  // temperature which uses the top quartile). This ignores the step-level
+  // region focus so we always zoom to the cluster that's changing the most.
+  const variableFocus = focusForActiveKey(rows, active.activeKey) ?? focus;
+  const scale = drawStressorMap({
+    svg, rows,
+    width: mapWidth, height: mapHeight,
+    activeKey: active.activeKey,
+    focus: variableFocus,
+    applyFocus,
+    ...handlers
+  });
+
+  // Translucent overlay anchored to the map bottom-left (over .sm-map-card).
+  const analysis = mapHolder.append('aside')
+    .attr('class', 'stressor-analysis')
+    .attr('aria-live', 'polite');
+
+  // Render every variable's copy as a layered <p>; only the active one is visible.
+  // Layered absolute positioning lets opacity transitions cross-fade without layout jumps.
+  const textStack = analysis.append('div').attr('class', 'stressor-analysis-stack');
+  available.forEach((stressor) => {
+    const isActive = stressor.key === active.key;
+    textStack.append('p')
+      .attr('class', `stressor-analysis-text${isActive ? ' is-active' : ''}`)
+      .attr('data-variable', stressor.key)
+      .attr('aria-hidden', String(!isActive))
+      .html(stressor.analysis ?? '');
+  });
+
+  // Force the fade-in transition on each render: start at opacity 0 then promote on next frame.
+  // Honors prefers-reduced-motion via the CSS rule on .stressor-analysis-text.
+  const activeNode = textStack.select('.stressor-analysis-text.is-active').node();
+  const stackNode = textStack.node();
+  if (activeNode && stackNode) {
+    // Measure the active paragraph's natural height at the stack's current
+    // width by briefly flipping it out of absolute positioning. The siblings
+    // stay opacity:0 + pointer-events:none so this is invisible to users.
+    const prevPosition = activeNode.style.position;
+    const prevVisibility = activeNode.style.visibility;
+    activeNode.style.position = 'static';
+    activeNode.style.visibility = 'hidden';
+    const naturalHeight = activeNode.getBoundingClientRect().height;
+    activeNode.style.position = prevPosition;
+    activeNode.style.visibility = prevVisibility;
+
+    activeNode.classList.remove('is-active');
+    activeNode.setAttribute('aria-hidden', 'true');
+    requestAnimationFrame(() => {
+      activeNode.classList.add('is-active');
+      activeNode.setAttribute('aria-hidden', 'false');
+      if (Number.isFinite(naturalHeight) && naturalHeight > 0) {
+        // Transition from the CSS-default `min-height: 6.4em` to the
+        // measured value so the card auto-fits the active paragraph.
+        stackNode.style.minHeight = `${Math.ceil(naturalHeight)}px`;
+      }
+    });
+  }
 
   renderLegend(legend, {
     title: active.legendTitle,

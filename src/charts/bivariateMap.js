@@ -30,8 +30,7 @@ export function renderBivariateMap({ svg, legend, rows, width, height, warmingKe
     type: 'bivariate',
     colors: bivariatePalette,
     axisLabels: { x: 'Land conversion →', y: 'Warming →' },
-    labels: 'Darker red = both stronger conversion AND stronger warming in the same grid cell.',
-    note: `Cells in the top-right of the legend are the ones where the most aggressive land-cover change overlaps with the strongest ${warmingLabel}.`,
+    note: `Darker red = stronger land conversion AND stronger ${warmingLabel} in the same grid cell.`,
     calculation: 'Land-conversion and warming values are each split into three terciles; the color combines the two tercile ranks.'
   });
 }

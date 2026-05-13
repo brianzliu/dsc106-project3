@@ -36,12 +36,12 @@ const format = d3.format('.2f');
 // Each entry describes what the tooltip should lead with for a given step mode.
 const tooltipFocus = {
   sinkTransition: {
-    focus: { key: 'timeline_change', label: 'NBP change, 1850 → 2014', unit: 'kg C m⁻² yr⁻¹' },
+    focus: { key: 'timeline_change', label: 'Net biome production (NBP) change, 1850 → 2014', unit: 'kg C m⁻² yr⁻¹' },
     sparkline: true,
     related: [
       ['land_conversion_change', 'Land conversion'],
       ['tas_change', 'Mean warming (°C)'],
-      ['nbp_change', 'Period-mean NBP shift']
+      ['nbp_change', 'Period-mean net biome production (NBP) shift']
     ]
   },
   land: {
@@ -50,7 +50,7 @@ const tooltipFocus = {
     related: [
       ['tas_change', 'Mean warming (°C)'],
       ['pr_dry_change', 'Dry-season precip.'],
-      ['nbp_change', 'NBP shift']
+      ['nbp_change', 'Net biome production (NBP) shift']
     ]
   },
   bivariate: {
@@ -62,7 +62,7 @@ const tooltipFocus = {
     related: [
       ['pr_dry_change', 'Dry precip.'],
       ['mrsos_dry_change', 'Dry soil moisture'],
-      ['gpp_change', 'GPP shift']
+      ['gpp_change', 'Gross primary production (GPP) shift']
     ]
   },
   smallMultiples: {
@@ -76,19 +76,19 @@ const tooltipFocus = {
     related: [
       ['tas_change', 'Mean warming (°C)'],
       ['lai_change', 'Leaf-area index'],
-      ['gpp_change', 'GPP shift']
+      ['gpp_change', 'Gross primary production (GPP) shift']
     ]
   },
   scatter: {
     focusPair: [
-      { key: 'climate_stress_score', label: 'Climate stress score' },
-      { key: 'gpp_change', fallback: 'lai_change', label: 'Productivity shift' }
+      { key: 'climate_stress_score', label: 'Climate stress score (standardized warming + drying)' },
+      { key: 'gpp_change', fallback: 'lai_change', label: 'GPP or leaf area index (LAI) shift' }
     ],
     sparkline: true,
     related: [
       ['tas_change', 'Mean warming (°C)'],
       ['mrsos_dry_change', 'Dry soil moisture'],
-      ['nbp_change', 'NBP shift']
+      ['nbp_change', 'Net biome production (NBP) shift']
     ]
   },
   risk: {
@@ -97,8 +97,8 @@ const tooltipFocus = {
     related: [
       ['land_conversion_change', 'Land conversion'],
       ['tas_change', 'Mean warming (°C)'],
-      ['gpp_change', 'GPP shift'],
-      ['nbp_change', 'NBP shift']
+      ['gpp_change', 'Gross primary production (GPP) shift'],
+      ['nbp_change', 'Net biome production (NBP) shift']
     ]
   }
 };
@@ -155,12 +155,17 @@ function goToStep(index) {
   content.classList.add('fade-out');
   setTimeout(() => {
     if (state.activeStep !== index) clearSinkRevealTimers();
+    if (index !== storySteps.length - 1) hideOutro();
     state.activeStep = index;
     state.smallMultiplesSub = 0; // reset sub-step on step change
     updateNarrative();
     state.applyFocus = true;
-    if (!state.introVisible && index === 0) startSinkReveal();
-    else render();
+    const stepId = storySteps[index]?.id;
+    if (!state.introVisible && stepId === 'sink-then-now') {
+      startSinkReveal();
+    } else {
+      render();
+    }
     state.applyFocus = false;
     content.classList.remove('fade-out');
   }, 210);
@@ -186,12 +191,34 @@ function updateNarrative() {
   backBtn.disabled = i === 0;
 
   if (i === total - 1) {
-    continueBtn.textContent = 'Start over ↺';
-    continueBtn.className = 'btn btn-continue is-final';
+    continueBtn.textContent = 'Next →';
+    continueBtn.className = 'btn btn-continue';
+    continueBtn.setAttribute('aria-label', 'Open wrap-up overlay');
   } else {
     continueBtn.textContent = 'Continue →';
     continueBtn.className = 'btn btn-continue';
+    continueBtn.setAttribute('aria-label', 'Continue to next step');
   }
+}
+
+function showOutro() {
+  const overlay = document.getElementById('outro-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('is-hidden');
+  overlay.classList.add('is-visible');
+  overlay.setAttribute('aria-hidden', 'false');
+  const back = document.getElementById('outro-back');
+  if (back) back.focus({ preventScroll: true });
+}
+
+function hideOutro() {
+  const overlay = document.getElementById('outro-overlay');
+  if (!overlay) return;
+  overlay.classList.add('is-hidden');
+  overlay.classList.remove('is-visible');
+  overlay.setAttribute('aria-hidden', 'true');
+  const continueBtn = document.getElementById('btn-continue');
+  if (continueBtn) continueBtn.focus({ preventScroll: true });
 }
 
 function updateIntroState() {
@@ -234,12 +261,53 @@ function layout() {
         </div>
       </div>
     </div>
-    <div class="intro-overlay" id="intro-overlay" aria-hidden="false">
+    <div class="intro-overlay intro-phase-context" id="intro-overlay" aria-hidden="false">
+      <div class="intro-phase-context-panel">
+        <div class="intro-context-group">
+          <p class="intro-context intro-context-definition">
+            <span class="intro-context-chunk intro-context-chunk--1">
+              A <span class="intro-highlight intro-highlight-sink">carbon sink</span> absorbs more CO₂ from the atmosphere than it releases.
+            </span>
+            <span class="intro-context-chunk intro-context-chunk--2">
+              A <span class="intro-highlight intro-highlight-source">carbon source</span> does the opposite — it sends more CO₂ into the air than it takes in.
+            </span>
+          </p>
+          <p class="intro-context intro-context-stats">
+            <span class="intro-context-chunk intro-context-chunk--3">
+              For centuries the intact Amazon absorbed an estimated <strong>~2 billion tonnes of CO₂</strong> each year.
+            </span>
+            <span class="intro-context-chunk intro-context-chunk--4">
+              Recently, heavily deforested parts of the eastern Amazon have been releasing roughly <strong>1.1 billion tonnes</strong> annually.
+            </span>
+          </p>
+        </div>
+        <button type="button" class="intro-next-button" id="intro-next" aria-label="Continue to headline">Next</button>
+      </div>
       <div class="intro-copy">
         <p class="intro-line intro-line-first">We think of the Amazon as a <span class="intro-highlight intro-highlight-sink">carbon sink</span>.</p>
         <p class="intro-line intro-line-second">Parts of it are starting to behave like a <span class="intro-highlight intro-highlight-source">carbon source</span>.</p>
         <button class="intro-button" id="intro-enter" type="button">Enter the visualization</button>
       </div>
+    </div>
+    <div class="outro-overlay is-hidden" id="outro-overlay" aria-hidden="true" role="dialog" aria-labelledby="outro-tagline">
+      <div class="outro-copy">
+        <p class="outro-line outro-tagline" id="outro-tagline">
+          These places — the brightest cells on the map — are where the Amazon is most likely to flip from <span class="outro-highlight outro-highlight-sink">sink</span> to <span class="outro-highlight outro-highlight-source">source</span> next.
+        </p>
+        <p class="outro-line outro-detail">
+          Every stressor we walked through — clearing, warming, dry-season drought, weakened forest cooling — overlaps here. Without intervention, this is where the carbon balance breaks first.
+        </p>
+        <div class="outro-actions">
+          <button type="button" class="outro-button outro-button-back" id="outro-back" aria-label="Return to the story">← Back to story</button>
+          <button type="button" class="outro-button outro-button-restart" id="outro-restart" aria-label="Restart the story from the beginning">Start over ↺</button>
+        </div>
+      </div>
+      <a class="outro-reference" id="outro-reference"
+         href="https://www.nature.com/articles/s41586-021-03629-6"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Open the Gatti 2021 Nature paper in a new tab">
+        Reference paper ↗
+      </a>
     </div>
     <div id="tooltip" role="status" aria-live="polite"></div>
   `);
@@ -257,15 +325,50 @@ function layout() {
   });
 
   document.getElementById('btn-continue').addEventListener('click', () => {
-    const next = state.activeStep < storySteps.length - 1 ? state.activeStep + 1 : 0;
-    goToStep(next);
+    if (state.activeStep >= storySteps.length - 1) {
+      showOutro();
+      return;
+    }
+    goToStep(state.activeStep + 1);
+  });
+
+  document.getElementById('outro-back').addEventListener('click', () => {
+    hideOutro();
+  });
+
+  document.getElementById('outro-restart').addEventListener('click', () => {
+    hideOutro();
+    goToStep(0);
+  });
+
+  document.getElementById('outro-overlay').addEventListener('click', (event) => {
+    if (event.target.id === 'outro-overlay') hideOutro();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    const overlay = document.getElementById('outro-overlay');
+    if (overlay && !overlay.classList.contains('is-hidden')) hideOutro();
+  });
+
+  document.getElementById('intro-next').addEventListener('click', () => {
+    const el = document.getElementById('intro-overlay');
+    if (!el || !el.classList.contains('intro-phase-context')) return;
+    el.classList.remove('intro-phase-context');
+    el.classList.add('intro-phase-tagline');
+    const enter = document.getElementById('intro-enter');
+    if (enter) enter.focus({ preventScroll: true });
   });
 
   document.getElementById('intro-enter').addEventListener('click', () => {
     state.introVisible = false;
     updateIntroState();
-    if (state.activeStep === 0) startSinkReveal();
-    else render();
+    const stepId = storySteps[state.activeStep]?.id;
+    if (stepId === 'sink-then-now') {
+      startSinkReveal();
+    } else {
+      render();
+    }
   });
 
   updateNarrative();
@@ -569,6 +672,13 @@ function render() {
   }
   if (step.mode === 'risk') {
     renderRiskMap({ svg, legend, ...common });
+  }
+
+  const legendSection = document.querySelector('.legend-section');
+  if (legendSection) {
+    const legendEl = document.getElementById('legend');
+    const isEmpty = !legendEl || legendEl.innerHTML.trim() === '';
+    legendSection.classList.toggle('legend-empty', isEmpty);
   }
 }
 
