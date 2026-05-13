@@ -622,8 +622,27 @@ function hideTooltip() {
   d3.select('#tooltip').style('opacity', 0);
 }
 
+function updateSinkTransitionCellHighlights() {
+  const step = storySteps[state.activeStep];
+  if (step?.mode !== 'sinkTransition') return;
+  const pinned = state.pinnedId;
+  const selected = state.brushedIds;
+  const svg = d3.select('#dynamic-chart .sink-map-card svg');
+  if (svg.empty()) return;
+  svg.selectAll('circle.grid-cell')
+    .attr('stroke', (d) =>
+      (d.id === pinned || selected.has(d.id) ? '#111827' : 'rgba(20,31,22,0.35)'))
+    .attr('stroke-width', (d) =>
+      (d.id === pinned || selected.has(d.id) ? 1.65 : 0.65));
+}
+
 function pinRow(row) {
   state.pinnedId = state.pinnedId === row.cell_id ? null : row.cell_id;
+  const step = storySteps[state.activeStep];
+  if (step?.mode === 'sinkTransition') {
+    updateSinkTransitionCellHighlights();
+    return;
+  }
   render();
 }
 
