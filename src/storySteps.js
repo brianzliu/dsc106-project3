@@ -92,7 +92,7 @@ export const storySteps = [
     annotation: null,
     body: [
       'Each dot is one Amazon grid cell. <strong>Moving right</strong> means the cell experienced <strong>stronger combined climate stress</strong>: more warming, more dry-season drying, and weaker evaporative cooling where available.',
-      '<strong>Moving up</strong> means GPP declined more. In other words, the <strong>upper-right</strong> part of the chart shows cells where <strong>harsher climate conditions line up with weaker vegetation productivity</strong>.',
+      '<strong>Moving down</strong> along the vertical axis means <strong>GPP change turns negative or stalls</strong> (weaker uptake between periods compared with cells plotted higher). The <strong>lower-right</strong> quadrant — high stress paired with weaker productivity — sits where both patterns meet.',
       'The pattern is not meant to prove that climate stress alone caused the change in GPP. Instead, it shows whether the CMIP6 data are <strong>consistent with the mechanism</strong> described in the paper: <strong>hotter, drier regions</strong> tend to be where the forest’s carbon uptake becomes <strong>more fragile</strong>.'
     ]
   },

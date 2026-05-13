@@ -248,19 +248,19 @@ export function renderLinkedScatter({
   if (sizeExtent[0] === sizeExtent[1]) sizeExtent[1] = sizeExtent[0] + 0.001;
   const size = d3.scaleSqrt().domain(sizeExtent).range([5.5, 16]);
 
-  // Quadrant background: stress > 0 AND productivity weakening = vulnerable zone.
+  // Quadrant background: stress > 0 AND at/below-zero productivity change — lower-right visually.
   const zeroX = x.domain()[0] <= 0 && x.domain()[1] >= 0 ? x(0) : null;
   const zeroY = y.domain()[0] <= 0 && y.domain()[1] >= 0 ? y(0) : null;
   if (zeroX !== null && zeroY !== null) {
     svg.append('rect')
-      .attr('x', zeroX).attr('y', margin.top)
+      .attr('x', zeroX).attr('y', zeroY)
       .attr('width', scatterW - margin.right - zeroX)
-      .attr('height', zeroY - margin.top)
+      .attr('height', scatterH - margin.bottom - zeroY)
       .attr('fill', 'rgba(184, 79, 22, 0.05)');
     svg.append('text')
       .attr('class', 'chart-quadrant-label')
       .attr('x', scatterW - margin.right - 8)
-      .attr('y', margin.top + 22)
+      .attr('y', scatterH - margin.bottom - 14)
       .attr('text-anchor', 'end')
       .text('high stress · weaker vegetation');
     svg.append('line')
