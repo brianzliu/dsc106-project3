@@ -343,66 +343,87 @@ body {
   pointer-events: none;
 }
 
+.cell-mode-picker {
+  position: absolute;
+  bottom: 22px;
+  left: 22px;
+  z-index: 25;
+  display: inline-flex;
+  gap: 0.32rem;
+  padding: 0.34rem;
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.92);
+  border: 1px solid rgba(20, 31, 22, 0.12);
+  box-shadow: 0 12px 28px rgba(20, 31, 22, 0.1);
+  backdrop-filter: blur(12px);
+}
+.cell-mode-picker.is-hidden { display: none; }
+.cell-mode-pill {
+  appearance: none;
+  border: none;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--text-mid);
+  padding: 0.32rem 0.7rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease;
+}
+.cell-mode-pill:hover { color: var(--forest); background: rgba(20, 31, 22, 0.05); }
+.cell-mode-pill.is-active {
+  background: var(--forest);
+  color: #fff;
+}
+
 .map-annotation {
   display: block;
   position: absolute;
-  top: 22px;
-  left: 22px;
+  top: 6%;
+  left: 4%;
   z-index: 30;
-  max-width: 19rem;
-  padding: 0.95rem 1.05rem 1rem 1.15rem;
-  border-radius: 14px;
-  background: rgba(255, 253, 248, 0.96);
-  border: 1px solid rgba(20, 31, 22, 0.12);
-  box-shadow: 0 18px 38px rgba(20, 31, 22, 0.12);
-  color: var(--text);
+  max-width: min(24rem, 38%);
   pointer-events: none;
-  animation: map-annotation-enter 0.42s cubic-bezier(0.22, 0.8, 0.36, 1) both;
-}
-.map-annotation::before {
-  content: '';
-  position: absolute;
-  top: 14px;
-  left: 0;
-  bottom: 14px;
-  width: 3px;
-  background: var(--accent);
-  border-radius: 0 3px 3px 0;
+  animation: map-annotation-enter 0.5s cubic-bezier(0.22, 0.8, 0.36, 1) both;
 }
 .map-annotation.is-hidden {
   display: none;
 }
 @keyframes map-annotation-enter {
-  from { opacity: 0; transform: translateY(-6px); }
+  from { opacity: 0; transform: translateY(-8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 @media (prefers-reduced-motion: reduce) {
   .map-annotation { animation: none; }
 }
-.map-annotation-mark {
-  display: inline-block;
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 50%;
-  background: var(--accent);
-  margin-right: 0.45rem;
-  vertical-align: 0.06rem;
-}
+.map-annotation-mark { display: none; }
 .map-annotation-title {
-  display: inline;
+  display: block;
   font-family: var(--font-display);
-  font-weight: 500;
-  font-variation-settings: 'opsz' 36;
-  font-size: 1.05rem;
-  line-height: 1.18;
-  letter-spacing: -0.01em;
-  color: var(--ink);
+  font-weight: 400;
+  font-style: italic;
+  font-variation-settings: 'opsz' 96;
+  font-size: clamp(1.7rem, 2.6vw, 2.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.022em;
+  color: rgba(15, 32, 19, 0.92);
+  text-shadow:
+    0 0 16px rgba(245, 240, 230, 0.96),
+    0 0 5px rgba(245, 240, 230, 1),
+    0 1px 0 rgba(245, 240, 230, 0.9);
+  margin-bottom: 0.6rem;
 }
 .map-annotation-detail {
-  margin-top: 0.5rem;
-  font-size: 0.83rem;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
   line-height: 1.5;
-  color: var(--text-mid);
+  font-weight: 500;
+  color: rgba(20, 31, 22, 0.86);
+  text-shadow:
+    0 0 12px rgba(245, 240, 230, 0.92),
+    0 0 4px rgba(245, 240, 230, 0.96);
 }
 
 @media (max-width: 860px) {

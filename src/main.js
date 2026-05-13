@@ -25,8 +25,17 @@ const state = {
   timelineByCell: new Map(),
   sinkRevealPhase: 2,
   smallMultiplesSub: 0,
-  applyFocus: false
+  applyFocus: false,
+  cellMode: 'hex'
 };
+
+const cellModes = [
+  { id: 'hex', label: 'Hex', blurb: 'Pointy-top hexagons inscribed in each cell.' },
+  { id: 'alpha', label: 'Alpha point', blurb: 'Soft, borderless circles; overlap compounds into density.' },
+  { id: 'raster', label: 'Raster', blurb: 'Raw model grid as small unframed squares.' },
+  { id: 'proportional', label: 'Proportional', blurb: 'Circles sized by the magnitude of the metric.' },
+  { id: 'contour', label: 'Contour', blurb: 'Smoothed isobands across the basin.' }
+];
 
 let sinkRevealTimers = [];
 
@@ -229,6 +238,7 @@ function layout() {
           <svg id="main-map" role="img" aria-label="Amazon grid visualization"></svg>
           <div id="dynamic-chart"></div>
           <aside id="map-annotation" class="map-annotation is-hidden" aria-hidden="true"></aside>
+          <div id="cell-mode-picker" class="cell-mode-picker" aria-label="Cell encoding"></div>
         </div>
       </div>
     </div>
@@ -266,8 +276,32 @@ function layout() {
     else render();
   });
 
+  renderCellModePicker();
   updateNarrative();
   updateIntroState();
+}
+
+function renderCellModePicker() {
+  const root = document.getElementById('cell-mode-picker');
+  if (!root) return;
+  root.innerHTML = cellModes.map((m) => `
+    <button type="button" class="cell-mode-pill${m.id === state.cellMode ? ' is-active' : ''}" data-mode="${m.id}" title="${m.blurb}">${m.label}</button>
+  `).join('');
+  root.querySelectorAll('button.cell-mode-pill').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.cellMode = btn.dataset.mode;
+      renderCellModePicker();
+      render();
+    });
+  });
+}
+
+function updateCellModePickerVisibility(step) {
+  const node = document.getElementById('cell-mode-picker');
+  if (!node) return;
+  // Only the drawMap-based steps support the encoding switch right now.
+  const supportedModes = new Set(['land', 'bivariate', 'evaporation', 'risk']);
+  node.classList.toggle('is-hidden', !supportedModes.has(step.mode));
 }
 
 // ─── Chart sizing ───────────────────────────────────────────────
@@ -490,6 +524,7 @@ function render() {
   const dynamic = d3.select('#dynamic-chart').style('display', 'none');
   const legend = d3.select('#legend');
   updateAnnotation(step);
+  updateCellModePickerVisibility(step);
 
   const common = {
     rows: state.rows,
@@ -501,6 +536,7 @@ function render() {
     pinnedId: state.pinnedId,
     focus: step.focus ?? null,
     applyFocus: state.applyFocus,
+    cellMode: state.cellMode,
     onHover: showTooltip,
     onLeave: hideTooltip,
     onClick: pinRow

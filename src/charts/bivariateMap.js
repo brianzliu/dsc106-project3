@@ -15,6 +15,12 @@ export function renderBivariateMap({ svg, legend, rows, width, height, warmingKe
       const landRank = quantileRank(landScale, row.land_conversion_change);
       const warmingRank = quantileRank(warmingScale, row[warmingKey]);
       return landRank === null || warmingRank === null ? neutralColor : bivariateColor(landRank, warmingRank);
+    },
+    magnitudeFor: (row) => {
+      const lr = quantileRank(landScale, row.land_conversion_change);
+      const wr = quantileRank(warmingScale, row[warmingKey]);
+      if (lr === null || wr === null) return 0;
+      return lr + wr;
     }
   });
 

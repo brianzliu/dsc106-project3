@@ -8,7 +8,9 @@ export function renderRiskMap({ svg, legend, rows, width, height, mapPadding, ..
   const scale = riskScale(rows);
   drawMap({
     svg, rows, width, height, mapPadding, ...handlers,
-    colorFor: (row) => finiteNumber(row.carbon_fragility_score) === null ? neutralColor : scale(row.carbon_fragility_score)
+    colorFor: (row) => finiteNumber(row.carbon_fragility_score) === null ? neutralColor : scale(row.carbon_fragility_score),
+    contourColorFor: (entry) => scale(entry.contour_value),
+    magnitudeFor: (row) => finiteNumber(row.carbon_fragility_score)
   });
 
   const projection = projectionFor(rows, width, height, mapPadding);

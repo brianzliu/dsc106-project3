@@ -107,15 +107,163 @@ export function projectionFor(rows, width, height, padding = 20) {
  *   • Grid cells on top, colored by `colorFor(row)`
  *   • d3.zoom for pan/zoom (scroll or pinch to zoom, drag to pan)
  */
+function drawCellsByMode({ layer, features, path, mode, colorFor, magnitudeFor, focus, pinnedId, selectedIds, onHover, onLeave, onClick, strokeFor }) {
+  const isFocus = (props) => !focus?.regions || focus.regions.includes(props.region);
+  const baseFill = (props) => colorFor(props);
+
+  const interactiveHandlers = (sel) => sel
+    .on('pointerenter', (event, d) => onHover?.(event, d.properties))
+    .on('pointermove',  (event, d) => onHover?.(event, d.properties))
+    .on('pointerleave', () => onLeave?.())
+    .on('click',        (event, d) => onClick?.(d.properties));
+
+  const strokeForCell = (d) =>
+    strokeFor?.(d.properties) ?? (d.id === pinnedId || selectedIds.has(d.id) ? '#111827' : 'rgba(20,31,22,0.18)');
+
+  const strokeWidthForCell = (d) => (d.id === pinnedId || selectedIds.has(d.id) ? 1.8 : 0.4);
+
+  if (mode === 'alpha') {
+    interactiveHandlers(layer.selectAll('circle.grid-cell')
+      .data(features, (d) => d.id)
+      .join('circle')
+      .attr('class', 'grid-cell')
+      .attr('cx', (d) => path.centroid(d)[0])
+      .attr('cy', (d) => path.centroid(d)[1])
+      .attr('r', (d) => cellRadius(d, path, 0.85))
+      .attr('fill', (d) => baseFill(d.properties))
+      .attr('fill-opacity', (d) => isFocus(d.properties) ? 0.45 : 0.14)
+      .attr('stroke', 'none')
+      .style('mix-blend-mode', 'multiply'));
+    return;
+  }
+
+  if (mode === 'raster') {
+    interactiveHandlers(layer.selectAll('path.grid-cell')
+      .data(features, (d) => d.id)
+      .join('path')
+      .attr('class', 'grid-cell')
+      .attr('d', path)
+      .attr('fill', (d) => baseFill(d.properties))
+      .attr('fill-opacity', (d) => isFocus(d.properties) ? 0.95 : 0.22)
+      .attr('stroke', 'none'));
+    return;
+  }
+
+  if (mode === 'proportional') {
+    const magnitudes = features
+      .map((d) => Math.abs(magnitudeFor?.(d.properties) ?? 0))
+      .filter((v) => Number.isFinite(v) && v > 0);
+    const maxMag = magnitudes.length ? d3.max(magnitudes) : 1;
+    const sizeScale = d3.scaleSqrt().domain([0, maxMag || 1]).range([1.5, 14]).clamp(true);
+
+    interactiveHandlers(layer.selectAll('circle.grid-cell')
+      .data(features, (d) => d.id)
+      .join('circle')
+      .attr('class', 'grid-cell')
+      .attr('cx', (d) => path.centroid(d)[0])
+      .attr('cy', (d) => path.centroid(d)[1])
+      .attr('r', (d) => {
+        const m = Math.abs(magnitudeFor?.(d.properties) ?? 0);
+        return sizeScale(Number.isFinite(m) ? m : 0);
+      })
+      .attr('fill', (d) => baseFill(d.properties))
+      .attr('fill-opacity', (d) => isFocus(d.properties) ? 0.88 : 0.25)
+      .attr('stroke', (d) => (d.id === pinnedId || selectedIds.has(d.id) ? '#111827' : 'rgba(20,31,22,0.35)'))
+      .attr('stroke-width', (d) => (d.id === pinnedId || selectedIds.has(d.id) ? 1.4 : 0.4)));
+    return;
+  }
+
+  // default: hex
+  interactiveHandlers(layer.selectAll('polygon.grid-cell')
+    .data(features, (d) => d.id)
+    .join('polygon')
+    .attr('class', 'grid-cell')
+    .attr('points', (d) => {
+      const [cx, cy] = path.centroid(d);
+      return hexPoints(cx, cy, cellRadius(d, path));
+    })
+    .attr('fill', (d) => baseFill(d.properties))
+    .attr('fill-opacity', (d) => isFocus(d.properties) ? 0.95 : 0.22)
+    .attr('stroke', strokeForCell)
+    .attr('stroke-width', strokeWidthForCell)
+    .attr('stroke-linejoin', 'round')
+    .attr('vector-effect', 'non-scaling-stroke'));
+}
+
+function buildContourGrid(rows, valueFn) {
+  const lats = [...new Set(rows.map((r) => r.lat).filter(Number.isFinite))].sort((a, b) => a - b);
+  const lons = [...new Set(rows.map((r) => r.lon).filter(Number.isFinite))].sort((a, b) => a - b);
+  if (lats.length < 2 || lons.length < 2) return null;
+  const w = lons.length;
+  const h = lats.length;
+  const values = new Float64Array(w * h);
+  const lonIx = new Map(lons.map((l, i) => [l, i]));
+  const latIx = new Map(lats.map((l, i) => [l, i]));
+  let valid = 0;
+  for (const row of rows) {
+    const i = lonIx.get(row.lon);
+    const j = latIx.get(row.lat);
+    if (i === undefined || j === undefined) continue;
+    const v = valueFn(row);
+    if (Number.isFinite(v)) {
+      // Flip j so j=0 maps to highest latitude (top of grid).
+      values[(h - 1 - j) * w + i] = v;
+      valid += 1;
+    } else {
+      values[(h - 1 - j) * w + i] = 0;
+    }
+  }
+  if (valid < 4) return null;
+  return { values, w, h, lats, lons };
+}
+
+function drawContours(layer, rows, projection, colorFor, magnitudeFor) {
+  const grid = buildContourGrid(rows, (row) => magnitudeFor?.(row) ?? 0);
+  if (!grid) return;
+  const { values, w, h, lats, lons } = grid;
+  const finite = Array.from(values).filter((v) => Number.isFinite(v) && v !== 0);
+  if (finite.length < 4) return;
+  const extent = d3.extent(finite);
+  const span = extent[1] - extent[0] || 1;
+  const thresholds = d3.range(8).map((i) => extent[0] + (span * (i + 0.5)) / 8);
+
+  const contourGen = d3.contours().size([w, h]).thresholds(thresholds);
+  const polygons = contourGen(values);
+
+  const lonRange = lons[w - 1] - lons[0];
+  const latRange = lats[h - 1] - lats[0];
+  const gridToScreen = ([gx, gy]) => {
+    const lon = lons[0] + (gx / (w - 1)) * lonRange;
+    const lat = lats[h - 1] - (gy / (h - 1)) * latRange;
+    return projection([lon, lat]);
+  };
+
+  const polygonToPath = (poly) => poly.coordinates.map((ring) =>
+    'M' + ring.map(gridToScreen).map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join('L') + 'Z'
+  ).join(' ');
+
+  // Render from low threshold to high so darker contours stack on top.
+  polygons.forEach((poly) => {
+    layer.append('path')
+      .attr('class', 'contour-band')
+      .attr('d', polygonToPath(poly))
+      .attr('fill', colorFor({ contour_value: poly.value }))
+      .attr('fill-opacity', 0.78)
+      .attr('stroke', 'none');
+  });
+}
+
 export function drawMap({
   svg, rows, width, height,
-  colorFor, strokeFor,
+  colorFor, strokeFor, magnitudeFor,
   selectedIds = new Set(), pinnedId,
   onHover, onLeave, onClick,
   showBasemap = true,
   mapPadding = 20,
   focus = null,
-  applyFocus = false
+  applyFocus = false,
+  cellMode = 'hex',
+  contourColorFor
 }) {
   svg.attr('viewBox', `0 0 ${width} ${height}`).attr('role', 'img');
   const projection = projectionFor(rows, width, height, mapPadding);
@@ -144,30 +292,25 @@ export function drawMap({
     });
   }
 
-  // Layer 2: hex cells inscribed in each polygon.
+  // Layer 2: cells in the requested encoding (hex / alpha / raster / proportional / contour).
   const cellsLayer = root.append('g').attr('class', 'cells-layer');
-  cellsLayer.selectAll('polygon.grid-cell')
-    .data(features, (d) => d.id)
-    .join('polygon')
-    .attr('class', 'grid-cell')
-    .attr('points', (d) => {
-      const [cx, cy] = path.centroid(d);
-      return hexPoints(cx, cy, cellRadius(d, path));
-    })
-    .attr('fill', (d) => colorFor(d.properties))
-    .attr('fill-opacity', (d) => inFocus(d.properties, focus) ? 0.95 : 0.22)
-    .attr('stroke', (d) =>
-      strokeFor?.(d.properties) ?? (d.id === pinnedId
-        ? '#111827'
-        : selectedIds.has(d.id) ? '#111827' : 'rgba(20,31,22,0.18)')
-    )
-    .attr('stroke-width', (d) => (d.id === pinnedId || selectedIds.has(d.id) ? 1.8 : 0.4))
-    .attr('vector-effect', 'non-scaling-stroke')
-    .attr('stroke-linejoin', 'round')
-    .on('pointerenter', (event, d) => onHover?.(event, d.properties))
-    .on('pointermove',  (event, d) => onHover?.(event, d.properties))
-    .on('pointerleave', () => onLeave?.())
-    .on('click',        (event, d) => onClick?.(d.properties));
+  if (cellMode === 'contour') {
+    drawContours(cellsLayer, rows, projection, contourColorFor ?? colorFor, magnitudeFor);
+  } else {
+    drawCellsByMode({
+      layer: cellsLayer,
+      features,
+      path,
+      mode: cellMode,
+      colorFor,
+      magnitudeFor,
+      focus,
+      pinnedId,
+      selectedIds,
+      onHover, onLeave, onClick,
+      strokeFor
+    });
+  }
 
   // Layer 3 (top): Amazon boundary sits above every cell.
   const amazonBoundaryLayer = root.append('g').attr('class', 'amazon-boundary-layer').attr('pointer-events', 'none');
@@ -275,7 +418,9 @@ export function renderChoropleth({
     colorFor: (row) => {
       const value = finiteNumber(row[key]);
       return value === null ? neutralColor : scale(value);
-    }
+    },
+    contourColorFor: (entry) => scale(entry.contour_value),
+    magnitudeFor: (row) => finiteNumber(row[key])
   });
   renderLegend(legend, { title, scale, note, calculation });
 }
