@@ -41,6 +41,17 @@ export function hexPoints(cx, cy, r) {
 // Sqrt-encoded magnitudes — radius span tuned so area differences read clearly without crowding mid-range cells.
 export const GRID_CELL_RADIUS_RANGE = [2.4, 20];
 
+// Bivariate choropleth only: higher radius floor (~4.5px) so low summed-rank cells in the west/north
+// stay visible against the cream basemap; max unchanged so overlap behavior matches other maps.
+export const BIVARIATE_GRID_CELL_RADIUS_RANGE = [4.5, 20];
+
+// Overview minimap dot radii — scale the floor with the main map so the inset stays proportional.
+const DEFAULT_OVERVIEW_RADIUS_RANGE = [1.15, 6.65];
+export const BIVARIATE_OVERVIEW_RADIUS_RANGE = [
+  (DEFAULT_OVERVIEW_RADIUS_RANGE[0] / GRID_CELL_RADIUS_RANGE[0]) * BIVARIATE_GRID_CELL_RADIUS_RANGE[0],
+  DEFAULT_OVERVIEW_RADIUS_RANGE[1]
+];
+
 /** @returns {d3.ScalePower<number, number>} */
 export function gridMagnitudeRadiusScale(maxMag, range = GRID_CELL_RADIUS_RANGE) {
   return d3.scaleSqrt().domain([0, maxMag || 1]).range(range).clamp(true);
@@ -115,7 +126,12 @@ export function projectionFor(rows, width, height, padding = 20) {
  *   • Grid cells on top, colored by `colorFor(row)`
  *   • d3.zoom for pan/zoom (scroll or pinch to zoom, drag to pan)
  */
-function drawCellsByMode({ layer, features, path, colorFor, magnitudeFor, focus, pinnedId, selectedIds, onHover, onLeave, onClick }) {
+function drawCellsByMode({
+  layer, features, path, colorFor, magnitudeFor, focus, pinnedId, selectedIds, onHover, onLeave, onClick,
+  magnitudeRadiusRange = GRID_CELL_RADIUS_RANGE,
+  gridDefaultStroke = 'rgba(20,31,22,0.35)',
+  gridDefaultStrokeWidth = 0.65
+}) {
   const isFocus = (props) => !focus?.regions || focus.regions.includes(props.region);
   const baseFill = (props) => colorFor(props);
 
@@ -129,7 +145,9 @@ function drawCellsByMode({ layer, features, path, colorFor, magnitudeFor, focus,
     .map((d) => Math.abs(magnitudeFor?.(d.properties) ?? 0))
     .filter((v) => Number.isFinite(v) && v > 0);
   const maxMag = magnitudes.length ? d3.max(magnitudes) : 1;
-  const sizeScale = gridMagnitudeRadiusScale(maxMag);
+  const sizeScale = gridMagnitudeRadiusScale(maxMag, magnitudeRadiusRange);
+  /** Bivariate: pale low-bin fills need near-full opacity outside regional focus so the palette stays legible on cream. */
+  const isBivariateMap = magnitudeRadiusRange === BIVARIATE_GRID_CELL_RADIUS_RANGE;
 
   interactiveHandlers(layer.selectAll('circle.grid-cell')
     .data(features, (d) => d.id)
@@ -142,9 +160,10 @@ function drawCellsByMode({ layer, features, path, colorFor, magnitudeFor, focus,
       return sizeScale(Number.isFinite(m) ? m : 0);
     })
     .attr('fill', (d) => baseFill(d.properties))
-    .attr('fill-opacity', (d) => isFocus(d.properties) ? 0.88 : 0.25)
-    .attr('stroke', (d) => (d.id === pinnedId || selectedIds.has(d.id) ? '#111827' : 'rgba(20,31,22,0.35)'))
-    .attr('stroke-width', (d) => (d.id === pinnedId || selectedIds.has(d.id) ? 1.65 : 0.65)));
+    .attr('fill-opacity', (d) =>
+      isFocus(d.properties) ? 0.88 : (isBivariateMap ? 1 : 0.25))
+    .attr('stroke', (d) => (d.id === pinnedId || selectedIds.has(d.id) ? '#111827' : gridDefaultStroke))
+    .attr('stroke-width', (d) => (d.id === pinnedId || selectedIds.has(d.id) ? 1.65 : gridDefaultStrokeWidth)));
 }
 
 export function drawMap({
@@ -155,7 +174,11 @@ export function drawMap({
   showBasemap = true,
   mapPadding = 20,
   focus = null,
-  applyFocus = false
+  applyFocus = false,
+  magnitudeRadiusRange = GRID_CELL_RADIUS_RANGE,
+  overviewMagnitudeRadiusRange = DEFAULT_OVERVIEW_RADIUS_RANGE,
+  gridDefaultStroke = 'rgba(20,31,22,0.35)',
+  gridDefaultStrokeWidth = 0.65
 }) {
   svg.attr('viewBox', `0 0 ${width} ${height}`).attr('role', 'img');
   const projection = projectionFor(rows, width, height, mapPadding);
@@ -195,7 +218,10 @@ export function drawMap({
     focus,
     pinnedId,
     selectedIds,
-    onHover, onLeave, onClick
+    onHover, onLeave, onClick,
+    magnitudeRadiusRange,
+    gridDefaultStroke,
+    gridDefaultStrokeWidth
   });
 
   // Layer 3 (top): Amazon boundary sits above every cell.
@@ -218,7 +244,8 @@ export function drawMap({
   attachZoomAndOverviewPanel(svg, root, {
     projection, path, width, height,
     rows, features, colorFor, magnitudeFor,
-    focus, applyFocus
+    focus, applyFocus,
+    overviewMagnitudeRadiusRange
   });
 }
 
@@ -236,7 +263,8 @@ export function attachZoomAndOverviewPanel(svg, root, {
   colorFor,
   magnitudeFor,
   focus,
-  applyFocus
+  applyFocus,
+  overviewMagnitudeRadiusRange = DEFAULT_OVERVIEW_RADIUS_RANGE
 }) {
   const minZoom = 0.6;
   const maxZoom = 12;
@@ -322,8 +350,9 @@ export function attachZoomAndOverviewPanel(svg, root, {
     .map((d) => Math.abs(magnitudeFor?.(d.properties) ?? 0))
     .filter((v) => Number.isFinite(v) && v > 0);
   const ovMaxMag = ovMagnitudes.length ? d3.max(ovMagnitudes) : 1;
-  const miniSizeScale = gridMagnitudeRadiusScale(ovMaxMag, [1.15, 6.65]);
+  const miniSizeScale = gridMagnitudeRadiusScale(ovMaxMag, overviewMagnitudeRadiusRange);
   const isOvFocus = (props) => !focus?.regions || focus.regions.includes(props.region);
+  const bivariateOverviewDots = overviewMagnitudeRadiusRange === BIVARIATE_OVERVIEW_RADIUS_RANGE;
 
   const overviewWrap = d3.select(mapWrapNode).append('div')
     .attr('class', 'map-overview-panel')
@@ -359,9 +388,12 @@ export function attachZoomAndOverviewPanel(svg, root, {
       return miniSizeScale(Number.isFinite(m) ? m : 0);
     })
     .attr('fill', (d) => colorFor(d.properties))
-    .attr('fill-opacity', (d) => isOvFocus(d.properties) ? 0.82 : 0.2)
-    .attr('stroke', 'rgba(20,31,22,0.16)')
-    .attr('stroke-width', 0.25);
+    .attr('fill-opacity', (d) => {
+      if (isOvFocus(d.properties)) return 0.82;
+      return bivariateOverviewDots ? 0.9 : 0.2;
+    })
+    .attr('stroke', () => (bivariateOverviewDots ? 'rgba(20,31,22,0.22)' : 'rgba(20,31,22,0.16)'))
+    .attr('stroke-width', overviewMagnitudeRadiusRange === BIVARIATE_OVERVIEW_RADIUS_RANGE ? 0.38 : 0.25);
 
   const ovBoundary = overviewSvgEl.append('g').attr('class', 'map-overview-outline')
     .attr('pointer-events', 'none');

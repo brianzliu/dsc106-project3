@@ -38,17 +38,26 @@ export function riskScale(rows) {
 
 // Bivariate palette: rows = land conversion (low → high), cols = warming (cool → hot).
 // Earth tones along the land axis, heat tones along the warming axis, deep brick at both extremes.
+// The low/low swatch is intentionally distinct from the cream basemap (#f0e9d8) so the
+// smallest, palest cells still read as filled dots rather than blending into the background.
 export const bivariatePalette = [
-  ['#f1ead7', '#e9b797', '#d6735c'], // low conversion
+  ['#e6d3a8', '#e9b797', '#d6735c'], // low conversion
   ['#dab780', '#c98c63', '#a8543b'], // mid conversion
   ['#9c6c2c', '#7a4621', '#4d1d0e']  // high conversion
 ];
 
+// Neutral fallback for bivariate cells when one of the two axes is missing data —
+// matches the low/low swatch so the dot still reads as "no extreme on either axis"
+// while staying visible against the basemap.
+export const bivariateNeutral = bivariatePalette[0][0];
+
 export function bivariateColor(landRank, warmingRank) {
-  return bivariatePalette[landRank]?.[warmingRank] ?? neutralColor;
+  return bivariatePalette[landRank]?.[warmingRank] ?? bivariateNeutral;
 }
 
 export function quantileRank(scale, value) {
   if (finiteNumber(value) === null) return null;
-  return Math.max(0, Math.min(2, scale(value)));
+  const rank = scale(value);
+  if (!Number.isFinite(rank)) return null;
+  return Math.max(0, Math.min(2, rank));
 }

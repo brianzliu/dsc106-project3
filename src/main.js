@@ -212,6 +212,18 @@ function syncContinueAvailability() {
   }
 }
 
+function resolveStepPeriod(step) {
+  if (!step?.period) return null;
+  if (step.period === 'comparison') {
+    const early = state.comparisonPeriods?.early;
+    const late = state.comparisonPeriods?.late;
+    if (!early || !late) return null;
+    const prettify = (text) => String(text).replace(/(\d{4})-(\d{4})/g, '$1–$2');
+    return `${prettify(early)} → ${prettify(late)}`;
+  }
+  return step.period;
+}
+
 function updateNarrative() {
   const step = storySteps[state.activeStep];
   const i = state.activeStep;
@@ -221,8 +233,14 @@ function updateNarrative() {
     d === i ? 'dot active' : d < i ? 'dot done' : 'dot inactive'
   );
 
+  const period = resolveStepPeriod(step);
+  const periodMarkup = period
+    ? `<div class="chart-period-label" aria-label="Time period covered">${period}</div>`
+    : '';
+
   d3.select('#narrative-content').html(`
     <h2 class="step-title">${step.title}</h2>
+    ${periodMarkup}
     <div class="step-body">${step.body.map((p) => `<p>${p}</p>`).join('')}</div>
   `);
 

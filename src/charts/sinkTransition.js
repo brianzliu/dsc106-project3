@@ -256,15 +256,6 @@ export function renderSinkTransition({
     });
   }
 
-  if (revealPhase >= 2 && years) {
-    svg.append('text')
-      .attr('class', 'sink-year-mark')
-      .attr('x', width - 22)
-      .attr('y', 44)
-      .attr('text-anchor', 'end')
-      .text(`${years[0]} → ${years[1]}`);
-  }
-
   const zoom = d3.zoom()
     .scaleExtent([1, 12])
     .translateExtent([[-width * 0.5, -height * 0.5], [width * 1.5, height * 1.5]])
@@ -282,7 +273,7 @@ export function renderSinkTransition({
   }
 
   renderLegend(legend, {
-    title: 'Change in carbon sink strength, 1850 to 2014',
+    title: 'Change in carbon sink strength',
     type: 'categories',
     colors: changeLegendItems(colorScale, bounds),
     note: 'Carbon sink strength here means annual net biospheric production (NBP): positive NBP means the land is taking up more carbon than it releases, while negative NBP means it is behaving more like a carbon source. Brown bins mean the cell became less sink-like by 2014; green bins mean it became more sink-like.',

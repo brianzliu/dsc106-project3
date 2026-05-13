@@ -194,7 +194,17 @@ body {
   line-height: 1.05;
   letter-spacing: -0.02em;
   color: var(--ink);
+  margin-bottom: 0.45rem;
+}
+
+.chart-period-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-light);
   margin-bottom: 0.85rem;
+  white-space: nowrap;
 }
 
 .step-body p {
@@ -1325,14 +1335,6 @@ body {
   width: 100%;
   height: 100%;
   display: block;
-}
-.sink-year-mark {
-  fill: rgba(20, 31, 22, 0.36);
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-variation-settings: 'opsz' 64;
-  font-size: 2rem;
-  letter-spacing: -0.02em;
 }
 .chart-note { fill: var(--text-light); font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.04em; }
 .sink-hotspot-outline {

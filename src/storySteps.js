@@ -3,6 +3,7 @@ export const storySteps = [
     id: 'sink-then-now',
     shortLabel: 'Then → now',
     title: 'A carbon sink under pressure',
+    period: '1850 → 2014',
     mode: 'sinkTransition',
     focus: null,
     annotation: {
@@ -19,6 +20,7 @@ export const storySteps = [
     shortLabel: 'Land conversion',
     title: 'The land surface changes first',
     mode: 'land',
+    period: 'comparison',
     focus: { regions: ['southeast', 'southwest'], label: 'Arc of deforestation' },
     annotation: {
       title: 'The arc of deforestation',
@@ -35,6 +37,7 @@ export const storySteps = [
     shortLabel: 'Warming overlap',
     title: 'Converted places also grow hotter',
     mode: 'bivariate',
+    period: 'comparison',
     focus: { regions: ['southeast'], label: 'Southeastern Amazonia' },
     annotation: {
       title: 'Land change meets warming',
@@ -51,6 +54,7 @@ export const storySteps = [
     shortLabel: 'Dry stress',
     title: 'The dry season intensifies the strain',
     mode: 'smallMultiples',
+    period: 'comparison',
     focus: { regions: ['southeast'], label: 'Southeastern Amazonia' },
     annotation: {
       title: 'A harsher dry season',
@@ -66,6 +70,7 @@ export const storySteps = [
     shortLabel: 'Cooling weakens',
     title: 'The forest loses part of its buffer',
     mode: 'evaporation',
+    period: 'comparison',
     focus: { regions: ['southeast'], label: 'Southeastern Amazonia' },
     annotation: {
       title: 'The buffer fails',
@@ -82,6 +87,7 @@ export const storySteps = [
     shortLabel: 'Vegetation',
     title: 'Vegetation productivity starts to slip',
     mode: 'scatter',
+    period: 'comparison',
     focus: null,
     annotation: null,
     body: [
@@ -95,6 +101,7 @@ export const storySteps = [
     shortLabel: 'Fragility map',
     title: 'Where the sink becomes fragile',
     mode: 'risk',
+    period: 'comparison',
     focus: null,
     annotation: {
       title: 'Where the sink breaks',
