@@ -303,7 +303,8 @@ export function attachZoomAndOverviewPanel(svg, root, {
   } else if (focus?.regions) {
     focusFeatures = features.filter((feature) => focus.regions.includes(feature.properties.region));
   }
-  if (focusFeatures && focusFeatures.length) {
+  const zoomToFocusedArea = focus?.zoomToFocus !== false;
+  if (focusFeatures && focusFeatures.length && zoomToFocusedArea) {
     const target = focusTransform(
       focusFeatures, path, width, height,
       focus?.padding ?? 60,

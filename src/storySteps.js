@@ -38,7 +38,7 @@ export const storySteps = [
     title: 'Converted places also grow hotter',
     mode: 'bivariate',
     period: 'comparison',
-    focus: { regions: ['southeast'], label: 'Southeastern Amazonia' },
+    focus: { regions: ['southeast'], label: 'Southeastern Amazonia', zoomToFocus: false },
     annotation: {
       title: 'Land change meets warming',
       detail: 'The deepest red cells in the southeast carry both stressors at once — strong conversion and strong warming.'
