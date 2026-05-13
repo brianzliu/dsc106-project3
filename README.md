@@ -1,6 +1,7 @@
 # Amazon Climate-Stress Scrollytelling
 
 ## Write up
+The write up is linked at the end of the visualization; but in case you don't find it, it is linked here:
 https://docs.google.com/document/d/10_D53uiqVVU8wZRlIv-LhMRPrzkj1C3Hb2o_H__wIAw/edit?tab=t.0
 
 ## Details
