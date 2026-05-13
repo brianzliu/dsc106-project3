@@ -38,6 +38,14 @@ export function hexPoints(cx, cy, r) {
   return pts.join(' ');
 }
 
+// Sqrt-encoded magnitudes — radius span tuned so area differences read clearly without crowding mid-range cells.
+export const GRID_CELL_RADIUS_RANGE = [2.4, 20];
+
+/** @returns {d3.ScalePower<number, number>} */
+export function gridMagnitudeRadiusScale(maxMag, range = GRID_CELL_RADIUS_RANGE) {
+  return d3.scaleSqrt().domain([0, maxMag || 1]).range(range).clamp(true);
+}
+
 export function focusTransform(features, path, width, height, padding = 60) {
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const feature of features) {
@@ -107,7 +115,7 @@ export function projectionFor(rows, width, height, padding = 20) {
  *   • Grid cells on top, colored by `colorFor(row)`
  *   • d3.zoom for pan/zoom (scroll or pinch to zoom, drag to pan)
  */
-function drawCellsByMode({ layer, features, path, mode, colorFor, magnitudeFor, focus, pinnedId, selectedIds, onHover, onLeave, onClick, strokeFor }) {
+function drawCellsByMode({ layer, features, path, colorFor, magnitudeFor, focus, pinnedId, selectedIds, onHover, onLeave, onClick }) {
   const isFocus = (props) => !focus?.regions || focus.regions.includes(props.region);
   const baseFill = (props) => colorFor(props);
 
@@ -117,140 +125,26 @@ function drawCellsByMode({ layer, features, path, mode, colorFor, magnitudeFor, 
     .on('pointerleave', () => onLeave?.())
     .on('click',        (event, d) => onClick?.(d.properties));
 
-  const strokeForCell = (d) =>
-    strokeFor?.(d.properties) ?? (d.id === pinnedId || selectedIds.has(d.id) ? '#111827' : 'rgba(20,31,22,0.18)');
+  const magnitudes = features
+    .map((d) => Math.abs(magnitudeFor?.(d.properties) ?? 0))
+    .filter((v) => Number.isFinite(v) && v > 0);
+  const maxMag = magnitudes.length ? d3.max(magnitudes) : 1;
+  const sizeScale = gridMagnitudeRadiusScale(maxMag);
 
-  const strokeWidthForCell = (d) => (d.id === pinnedId || selectedIds.has(d.id) ? 1.8 : 0.4);
-
-  if (mode === 'alpha') {
-    interactiveHandlers(layer.selectAll('circle.grid-cell')
-      .data(features, (d) => d.id)
-      .join('circle')
-      .attr('class', 'grid-cell')
-      .attr('cx', (d) => path.centroid(d)[0])
-      .attr('cy', (d) => path.centroid(d)[1])
-      .attr('r', (d) => cellRadius(d, path, 0.85))
-      .attr('fill', (d) => baseFill(d.properties))
-      .attr('fill-opacity', (d) => isFocus(d.properties) ? 0.45 : 0.14)
-      .attr('stroke', 'none')
-      .style('mix-blend-mode', 'multiply'));
-    return;
-  }
-
-  if (mode === 'raster') {
-    interactiveHandlers(layer.selectAll('path.grid-cell')
-      .data(features, (d) => d.id)
-      .join('path')
-      .attr('class', 'grid-cell')
-      .attr('d', path)
-      .attr('fill', (d) => baseFill(d.properties))
-      .attr('fill-opacity', (d) => isFocus(d.properties) ? 0.95 : 0.22)
-      .attr('stroke', 'none'));
-    return;
-  }
-
-  if (mode === 'proportional') {
-    const magnitudes = features
-      .map((d) => Math.abs(magnitudeFor?.(d.properties) ?? 0))
-      .filter((v) => Number.isFinite(v) && v > 0);
-    const maxMag = magnitudes.length ? d3.max(magnitudes) : 1;
-    const sizeScale = d3.scaleSqrt().domain([0, maxMag || 1]).range([1.5, 14]).clamp(true);
-
-    interactiveHandlers(layer.selectAll('circle.grid-cell')
-      .data(features, (d) => d.id)
-      .join('circle')
-      .attr('class', 'grid-cell')
-      .attr('cx', (d) => path.centroid(d)[0])
-      .attr('cy', (d) => path.centroid(d)[1])
-      .attr('r', (d) => {
-        const m = Math.abs(magnitudeFor?.(d.properties) ?? 0);
-        return sizeScale(Number.isFinite(m) ? m : 0);
-      })
-      .attr('fill', (d) => baseFill(d.properties))
-      .attr('fill-opacity', (d) => isFocus(d.properties) ? 0.88 : 0.25)
-      .attr('stroke', (d) => (d.id === pinnedId || selectedIds.has(d.id) ? '#111827' : 'rgba(20,31,22,0.35)'))
-      .attr('stroke-width', (d) => (d.id === pinnedId || selectedIds.has(d.id) ? 1.4 : 0.4)));
-    return;
-  }
-
-  // default: hex
-  interactiveHandlers(layer.selectAll('polygon.grid-cell')
+  interactiveHandlers(layer.selectAll('circle.grid-cell')
     .data(features, (d) => d.id)
-    .join('polygon')
+    .join('circle')
     .attr('class', 'grid-cell')
-    .attr('points', (d) => {
-      const [cx, cy] = path.centroid(d);
-      return hexPoints(cx, cy, cellRadius(d, path));
+    .attr('cx', (d) => path.centroid(d)[0])
+    .attr('cy', (d) => path.centroid(d)[1])
+    .attr('r', (d) => {
+      const m = Math.abs(magnitudeFor?.(d.properties) ?? 0);
+      return sizeScale(Number.isFinite(m) ? m : 0);
     })
     .attr('fill', (d) => baseFill(d.properties))
-    .attr('fill-opacity', (d) => isFocus(d.properties) ? 0.95 : 0.22)
-    .attr('stroke', strokeForCell)
-    .attr('stroke-width', strokeWidthForCell)
-    .attr('stroke-linejoin', 'round')
-    .attr('vector-effect', 'non-scaling-stroke'));
-}
-
-function buildContourGrid(rows, valueFn) {
-  const lats = [...new Set(rows.map((r) => r.lat).filter(Number.isFinite))].sort((a, b) => a - b);
-  const lons = [...new Set(rows.map((r) => r.lon).filter(Number.isFinite))].sort((a, b) => a - b);
-  if (lats.length < 2 || lons.length < 2) return null;
-  const w = lons.length;
-  const h = lats.length;
-  const values = new Float64Array(w * h);
-  const lonIx = new Map(lons.map((l, i) => [l, i]));
-  const latIx = new Map(lats.map((l, i) => [l, i]));
-  let valid = 0;
-  for (const row of rows) {
-    const i = lonIx.get(row.lon);
-    const j = latIx.get(row.lat);
-    if (i === undefined || j === undefined) continue;
-    const v = valueFn(row);
-    if (Number.isFinite(v)) {
-      // Flip j so j=0 maps to highest latitude (top of grid).
-      values[(h - 1 - j) * w + i] = v;
-      valid += 1;
-    } else {
-      values[(h - 1 - j) * w + i] = 0;
-    }
-  }
-  if (valid < 4) return null;
-  return { values, w, h, lats, lons };
-}
-
-function drawContours(layer, rows, projection, colorFor, magnitudeFor) {
-  const grid = buildContourGrid(rows, (row) => magnitudeFor?.(row) ?? 0);
-  if (!grid) return;
-  const { values, w, h, lats, lons } = grid;
-  const finite = Array.from(values).filter((v) => Number.isFinite(v) && v !== 0);
-  if (finite.length < 4) return;
-  const extent = d3.extent(finite);
-  const span = extent[1] - extent[0] || 1;
-  const thresholds = d3.range(8).map((i) => extent[0] + (span * (i + 0.5)) / 8);
-
-  const contourGen = d3.contours().size([w, h]).thresholds(thresholds);
-  const polygons = contourGen(values);
-
-  const lonRange = lons[w - 1] - lons[0];
-  const latRange = lats[h - 1] - lats[0];
-  const gridToScreen = ([gx, gy]) => {
-    const lon = lons[0] + (gx / (w - 1)) * lonRange;
-    const lat = lats[h - 1] - (gy / (h - 1)) * latRange;
-    return projection([lon, lat]);
-  };
-
-  const polygonToPath = (poly) => poly.coordinates.map((ring) =>
-    'M' + ring.map(gridToScreen).map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join('L') + 'Z'
-  ).join(' ');
-
-  // Render from low threshold to high so darker contours stack on top.
-  polygons.forEach((poly) => {
-    layer.append('path')
-      .attr('class', 'contour-band')
-      .attr('d', polygonToPath(poly))
-      .attr('fill', colorFor({ contour_value: poly.value }))
-      .attr('fill-opacity', 0.78)
-      .attr('stroke', 'none');
-  });
+    .attr('fill-opacity', (d) => isFocus(d.properties) ? 0.88 : 0.25)
+    .attr('stroke', (d) => (d.id === pinnedId || selectedIds.has(d.id) ? '#111827' : 'rgba(20,31,22,0.35)'))
+    .attr('stroke-width', (d) => (d.id === pinnedId || selectedIds.has(d.id) ? 1.65 : 0.65)));
 }
 
 export function drawMap({
@@ -261,9 +155,7 @@ export function drawMap({
   showBasemap = true,
   mapPadding = 20,
   focus = null,
-  applyFocus = false,
-  cellMode = 'hex',
-  contourColorFor
+  applyFocus = false
 }) {
   svg.attr('viewBox', `0 0 ${width} ${height}`).attr('role', 'img');
   const projection = projectionFor(rows, width, height, mapPadding);
@@ -292,25 +184,19 @@ export function drawMap({
     });
   }
 
-  // Layer 2: cells in the requested encoding (hex / alpha / raster / proportional / contour).
+  // Layer 2: cells in the requested encoding (proportional).
   const cellsLayer = root.append('g').attr('class', 'cells-layer');
-  if (cellMode === 'contour') {
-    drawContours(cellsLayer, rows, projection, contourColorFor ?? colorFor, magnitudeFor);
-  } else {
-    drawCellsByMode({
-      layer: cellsLayer,
-      features,
-      path,
-      mode: cellMode,
-      colorFor,
-      magnitudeFor,
-      focus,
-      pinnedId,
-      selectedIds,
-      onHover, onLeave, onClick,
-      strokeFor
-    });
-  }
+  drawCellsByMode({
+    layer: cellsLayer,
+    features,
+    path,
+    colorFor,
+    magnitudeFor,
+    focus,
+    pinnedId,
+    selectedIds,
+    onHover, onLeave, onClick
+  });
 
   // Layer 3 (top): Amazon boundary sits above every cell.
   const amazonBoundaryLayer = root.append('g').attr('class', 'amazon-boundary-layer').attr('pointer-events', 'none');
@@ -329,33 +215,68 @@ export function drawMap({
       .attr('vector-effect', 'non-scaling-stroke');
   });
 
-  // Layer 3: hint overlay
-  svg.selectAll('.zoom-hint').remove();
-  svg.append('text')
-    .attr('class', 'zoom-hint')
-    .attr('x', width - 10)
-    .attr('y', height - 10)
-    .attr('text-anchor', 'end')
-    .text('drag to pan · pinch/scroll to zoom · dbl-click to reset');
+  attachZoomAndOverviewPanel(svg, root, {
+    projection, path, width, height,
+    rows, features, colorFor, magnitudeFor,
+    focus, applyFocus
+  });
+}
 
-  // Zoom / pan behavior — applies the same transform to root, so basemap and
-  // cells stay aligned.
+/**
+ * d3-zoom on `svg`, driving `root`'s transform, plus `.map-overview-panel` on `.map-wrap`
+ * when present. Keeps choropleths and standalone stressor maps in sync with the minimap.
+ */
+export function attachZoomAndOverviewPanel(svg, root, {
+  projection,
+  path,
+  width,
+  height,
+  rows,
+  features,
+  colorFor,
+  magnitudeFor,
+  focus,
+  applyFocus,
+  showZoomHint = true
+}) {
+  if (showZoomHint) {
+    svg.selectAll('.zoom-hint').remove();
+    svg.append('text')
+      .attr('class', 'zoom-hint')
+      .attr('x', width - 10)
+      .attr('y', height - 10)
+      .attr('text-anchor', 'end')
+      .text('drag to pan · pinch/scroll to zoom · dbl-click to reset');
+  }
+
   const minZoom = 0.6;
   const maxZoom = 12;
+  let refreshOverview = () => {};
+
+  function polygonAreaMm(vertices) {
+    if (vertices.length < 3) return 0;
+    let sum = 0;
+    const n = vertices.length;
+    for (let i = 0; i < n; i += 1) {
+      const [x1, y1] = vertices[i];
+      const [x2, y2] = vertices[(i + 1) % n];
+      sum += x1 * y2 - x2 * y1;
+    }
+    return Math.abs(sum / 2);
+  }
+
   const zoom = d3.zoom()
     .scaleExtent([minZoom, maxZoom])
     .translateExtent([[-width * 0.5, -height * 0.5], [width * 1.5, height * 1.5]])
     .on('zoom', (event) => {
       root.attr('transform', event.transform);
+      refreshOverview();
     });
 
   svg.call(zoom);
-  svg.on('dblclick.zoom', null); // disable d3's built-in dblclick zoom-in
+  svg.on('dblclick.zoom', null);
   svg.on('dblclick', () => svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity));
 
-  // Programmatic focus: gently zoom toward the focus region's bbox.
-  // Animate only on step navigation; on resize-driven re-renders snap so the
-  // user does not see a competing transition every time they resize the window.
   if (focus?.regions) {
     const focusFeatures = features.filter((feature) => focus.regions.includes(feature.properties.region));
     if (focusFeatures.length) {
@@ -364,11 +285,12 @@ export function drawMap({
         ? svg.transition().duration(640).ease(d3.easeCubicInOut)
         : svg;
       selection.call(zoom.transform, target);
+      if (applyFocus && selection !== svg) {
+        selection.on('end.overview', () => refreshOverview());
+      }
     }
   }
 
-  // Safari exposes trackpad pinch as WebKit gesture events rather than wheel
-  // input, so mirror those into d3-zoom.
   let gestureStartScale = null;
 
   svg
@@ -387,6 +309,127 @@ export function drawMap({
       event.preventDefault();
       gestureStartScale = null;
     }, { passive: false });
+
+  const mapWrapNode = svg.node()?.closest('.map-wrap');
+  if (!mapWrapNode) return;
+
+  d3.select(mapWrapNode).selectAll('.map-overview-panel').remove();
+  const OVW = 180;
+  const OVH = 118;
+  const projectionMini = projectionFor(rows, OVW, OVH, 5);
+  const pathMini = d3.geoPath(projectionMini);
+  const ovMagnitudes = features
+    .map((d) => Math.abs(magnitudeFor?.(d.properties) ?? 0))
+    .filter((v) => Number.isFinite(v) && v > 0);
+  const ovMaxMag = ovMagnitudes.length ? d3.max(ovMagnitudes) : 1;
+  const miniSizeScale = gridMagnitudeRadiusScale(ovMaxMag, [1.15, 6.65]);
+  const isOvFocus = (props) => !focus?.regions || focus.regions.includes(props.region);
+
+  const overviewWrap = d3.select(mapWrapNode).append('div')
+    .attr('class', 'map-overview-panel')
+    .attr('aria-hidden', 'true');
+  overviewWrap.append('div').attr('class', 'map-overview-title').text('Overview');
+  const overviewSvgEl = overviewWrap.append('svg')
+    .attr('class', 'map-overview-svg')
+    .attr('viewBox', `0 0 ${OVW} ${OVH}`)
+    .attr('role', 'presentation');
+
+  const ovBasemapG = overviewSvgEl.append('g').attr('class', 'map-overview-basemap')
+    .attr('pointer-events', 'none');
+  ensureBasemap().then((sa) => {
+    if (!sa || ovBasemapG.empty()) return;
+    ovBasemapG.append('path')
+      .datum(sa)
+      .attr('d', pathMini)
+      .attr('fill', '#efe7d6')
+      .attr('stroke', 'none')
+      .attr('opacity', 0.92);
+  });
+
+  overviewSvgEl.append('g')
+    .attr('class', 'map-overview-dots')
+    .attr('pointer-events', 'none')
+    .selectAll('circle')
+    .data(features, (d) => d.id)
+    .join('circle')
+    .attr('cx', (d) => pathMini.centroid(d)[0])
+    .attr('cy', (d) => pathMini.centroid(d)[1])
+    .attr('r', (d) => {
+      const m = Math.abs(magnitudeFor?.(d.properties) ?? 0);
+      return miniSizeScale(Number.isFinite(m) ? m : 0);
+    })
+    .attr('fill', (d) => colorFor(d.properties))
+    .attr('fill-opacity', (d) => isOvFocus(d.properties) ? 0.82 : 0.2)
+    .attr('stroke', 'rgba(20,31,22,0.16)')
+    .attr('stroke-width', 0.25);
+
+  const ovBoundary = overviewSvgEl.append('g').attr('class', 'map-overview-outline')
+    .attr('pointer-events', 'none');
+  ensureAmazonBoundary().then((amazonBoundary) => {
+    if (!amazonBoundary || ovBoundary.empty()) return;
+    ovBoundary.append('path')
+      .datum(amazonBoundary)
+      .attr('d', pathMini)
+      .attr('fill', 'none')
+      .attr('stroke', '#0f2013')
+      .attr('stroke-opacity', 0.9)
+      .attr('stroke-width', 1.2)
+      .attr('stroke-linejoin', 'round')
+      .attr('stroke-linecap', 'round')
+      .attr('vector-effect', 'non-scaling-stroke');
+  });
+
+  const viewportPoly = overviewSvgEl.append('g')
+    .attr('class', 'map-overview-framing')
+    .attr('pointer-events', 'none')
+    .append('polygon')
+    .attr('fill', 'rgba(184, 79, 22, 0.11)')
+    .attr('stroke', '#b84f16')
+    .attr('stroke-opacity', 0.88)
+    .attr('stroke-width', 1.15)
+    .attr('vector-effect', 'non-scaling-stroke');
+
+  refreshOverview = () => {
+    const panel = overviewWrap.node();
+    if (!panel) return;
+    const t = d3.zoomTransform(svg.node());
+    const roughlyReset = Math.abs(t.k - 1) < 0.022 && Math.abs(t.x) < 2.2 && Math.abs(t.y) < 2.2;
+    if (roughlyReset) {
+      panel.classList.remove('is-visible');
+      return;
+    }
+
+    const screenCorners = [[0, 0], [width, 0], [width, height], [0, height]];
+    const miniPts = screenCorners.flatMap(([sx, sy]) => {
+      const [lx, ly] = t.invert([sx, sy]);
+      const lonlat = projection.invert([lx, ly]);
+      if (!lonlat || !Number.isFinite(lonlat[0]) || !Number.isFinite(lonlat[1])) return [];
+      const [mx, my] = projectionMini(lonlat);
+      if (!Number.isFinite(mx) || !Number.isFinite(my)) return [];
+      return [[mx, my]];
+    });
+
+    if (miniPts.length < 3) {
+      panel.classList.remove('is-visible');
+      return;
+    }
+
+    const areaMm = polygonAreaMm(miniPts);
+    const fullArea = OVW * OVH;
+    const hasStoryRegionalFocus = Array.isArray(focus?.regions) && focus.regions.length > 0;
+    const hideForNearlyFullViewport = !hasStoryRegionalFocus
+      && fullArea > 0
+      && areaMm >= fullArea * 0.97;
+    if (hideForNearlyFullViewport) {
+      panel.classList.remove('is-visible');
+      return;
+    }
+
+    viewportPoly.attr('points', miniPts.map((p) => p.join(',')).join(' '));
+    panel.classList.add('is-visible');
+  };
+
+  requestAnimationFrame(() => refreshOverview());
 }
 
 export function renderOverview({ svg, legend, rows, width, height, ...handlers }) {
@@ -419,7 +462,6 @@ export function renderChoropleth({
       const value = finiteNumber(row[key]);
       return value === null ? neutralColor : scale(value);
     },
-    contourColorFor: (entry) => scale(entry.contour_value),
     magnitudeFor: (row) => finiteNumber(row[key])
   });
   renderLegend(legend, { title, scale, note, calculation });

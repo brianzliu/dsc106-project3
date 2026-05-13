@@ -25,17 +25,8 @@ const state = {
   timelineByCell: new Map(),
   sinkRevealPhase: 2,
   smallMultiplesSub: 0,
-  applyFocus: false,
-  cellMode: 'hex'
+  applyFocus: false
 };
-
-const cellModes = [
-  { id: 'hex', label: 'Hex', blurb: 'Pointy-top hexagons inscribed in each cell.' },
-  { id: 'alpha', label: 'Alpha point', blurb: 'Soft, borderless circles; overlap compounds into density.' },
-  { id: 'raster', label: 'Raster', blurb: 'Raw model grid as small unframed squares.' },
-  { id: 'proportional', label: 'Proportional', blurb: 'Circles sized by the magnitude of the metric.' },
-  { id: 'contour', label: 'Contour', blurb: 'Smoothed isobands across the basin.' }
-];
 
 let sinkRevealTimers = [];
 
@@ -220,14 +211,16 @@ function layout() {
     <div class="walkthrough">
       <aside class="narration-panel" aria-label="Story narration">
         <div class="narration-scroll">
-          <div class="step-progress">
-            <div class="step-dots" id="step-dots"></div>
+          <div class="narrative-wrapper">
+            <div class="step-progress">
+              <div class="step-dots" id="step-dots"></div>
+            </div>
+            <div class="narrative-content" id="narrative-content"></div>
           </div>
-          <div class="narrative-content" id="narrative-content"></div>
-          <section class="legend-section" aria-label="Legend and methods">
-            <div id="legend" aria-label="Map legend"></div>
-          </section>
         </div>
+        <section class="legend-section" aria-label="Legend and methods">
+          <div id="legend" aria-label="Map legend"></div>
+        </section>
         <nav class="narration-nav" aria-label="Step navigation">
           <button class="btn btn-back" id="btn-back" disabled aria-label="Previous step">← Back</button>
           <button class="btn btn-continue" id="btn-continue" aria-label="Continue to next step">Continue →</button>
@@ -238,7 +231,6 @@ function layout() {
           <svg id="main-map" role="img" aria-label="Amazon grid visualization"></svg>
           <div id="dynamic-chart"></div>
           <aside id="map-annotation" class="map-annotation is-hidden" aria-hidden="true"></aside>
-          <div id="cell-mode-picker" class="cell-mode-picker" aria-label="Cell encoding"></div>
         </div>
       </div>
     </div>
@@ -276,32 +268,8 @@ function layout() {
     else render();
   });
 
-  renderCellModePicker();
   updateNarrative();
   updateIntroState();
-}
-
-function renderCellModePicker() {
-  const root = document.getElementById('cell-mode-picker');
-  if (!root) return;
-  root.innerHTML = cellModes.map((m) => `
-    <button type="button" class="cell-mode-pill${m.id === state.cellMode ? ' is-active' : ''}" data-mode="${m.id}" title="${m.blurb}">${m.label}</button>
-  `).join('');
-  root.querySelectorAll('button.cell-mode-pill').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      state.cellMode = btn.dataset.mode;
-      renderCellModePicker();
-      render();
-    });
-  });
-}
-
-function updateCellModePickerVisibility(step) {
-  const node = document.getElementById('cell-mode-picker');
-  if (!node) return;
-  // Only the drawMap-based steps support the encoding switch right now.
-  const supportedModes = new Set(['land', 'bivariate', 'evaporation', 'risk']);
-  node.classList.toggle('is-hidden', !supportedModes.has(step.mode));
 }
 
 // ─── Chart sizing ───────────────────────────────────────────────
@@ -496,25 +464,9 @@ function mapPaddingForLayout() {
 function updateAnnotation(step) {
   const node = document.getElementById('map-annotation');
   if (!node) return;
-  if (!step?.annotation) {
-    node.classList.add('is-hidden');
-    node.setAttribute('aria-hidden', 'true');
-    node.innerHTML = '';
-    return;
-  }
-  const { title, detail } = step.annotation;
-  node.innerHTML = `
-    <span class="map-annotation-mark" aria-hidden="true"></span>
-    <strong class="map-annotation-title">${title}</strong>
-    <p class="map-annotation-detail">${detail}</p>
-  `;
-  node.setAttribute('aria-hidden', 'false');
-  node.classList.remove('is-hidden');
-  // Restart the entry animation so it replays each step change.
-  node.style.animation = 'none';
-  // eslint-disable-next-line no-unused-expressions
-  void node.offsetWidth;
-  node.style.animation = '';
+  node.classList.add('is-hidden');
+  node.setAttribute('aria-hidden', 'true');
+  node.innerHTML = '';
 }
 
 function render() {
@@ -523,8 +475,9 @@ function render() {
   const svg = d3.select('#main-map').style('display', null);
   const dynamic = d3.select('#dynamic-chart').style('display', 'none');
   const legend = d3.select('#legend');
+  d3.select('.map-wrap').selectAll('.map-overview-panel').remove();
+
   updateAnnotation(step);
-  updateCellModePickerVisibility(step);
 
   const common = {
     rows: state.rows,
@@ -536,7 +489,6 @@ function render() {
     pinnedId: state.pinnedId,
     focus: step.focus ?? null,
     applyFocus: state.applyFocus,
-    cellMode: state.cellMode,
     onHover: showTooltip,
     onLeave: hideTooltip,
     onClick: pinRow

@@ -145,20 +145,17 @@ function renderMiniMap(container, rows, { onCellLink }) {
   });
 
   const cellsLayer = svg.append('g').attr('class', 'mini-cells-layer');
-  cellsLayer.selectAll('polygon.mini-cell')
+  cellsLayer.selectAll('circle.mini-cell')
     .data(features, (d) => d.id)
-    .join('polygon')
+    .join('circle')
     .attr('class', 'mini-cell')
-    .attr('points', (d) => {
-      const [cx, cy] = path.centroid(d);
-      return hexPoints(cx, cy, cellRadius(d, path));
-    })
+    .attr('cx', (d) => path.centroid(d)[0])
+    .attr('cy', (d) => path.centroid(d)[1])
+    .attr('r', (d) => cellRadius(d, path) * 0.92)
     .attr('fill', '#d9cdb2')
     .attr('fill-opacity', 0.55)
     .attr('stroke', 'rgba(20,31,22,0.16)')
-    .attr('stroke-width', 0.35)
-    .attr('stroke-linejoin', 'round')
-    .attr('vector-effect', 'non-scaling-stroke');
+    .attr('stroke-width', 0.35);
 
   // Boundary stays on top.
   const boundaryLayer = svg.append('g').attr('pointer-events', 'none');
@@ -171,7 +168,7 @@ function renderMiniMap(container, rows, { onCellLink }) {
   });
 
   function highlight({ hoveredId, selectedIds = new Set() }) {
-    cellsLayer.selectAll('polygon.mini-cell')
+    cellsLayer.selectAll('circle.mini-cell')
       .attr('fill', (d) => {
         if (d.id === hoveredId) return '#b84f16';
         if (selectedIds.has(d.id)) return '#1c3820';
@@ -179,7 +176,7 @@ function renderMiniMap(container, rows, { onCellLink }) {
       })
       .attr('fill-opacity', (d) => (d.id === hoveredId || selectedIds.has(d.id) ? 0.9 : 0.45))
       .attr('stroke', (d) => (d.id === hoveredId || selectedIds.has(d.id) ? '#111827' : 'rgba(20,31,22,0.18)'))
-      .attr('stroke-width', (d) => (d.id === hoveredId || selectedIds.has(d.id) ? 1 : 0.35));
+      .attr('stroke-width', (d) => (d.id === hoveredId || selectedIds.has(d.id) ? 1.05 : 0.42));
   }
 
   onCellLink?.(highlight);
@@ -237,7 +234,7 @@ export function renderLinkedScatter({
   const color = binnedYColorScale(data, yVal);
   const sizeExtent = d3.extent(rows, (d) => finiteNumber(d.tas_change)).map((d) => d ?? 0);
   if (sizeExtent[0] === sizeExtent[1]) sizeExtent[1] = sizeExtent[0] + 0.001;
-  const size = d3.scaleSqrt().domain(sizeExtent).range([4, 12]);
+  const size = d3.scaleSqrt().domain(sizeExtent).range([5.5, 16]);
 
   // Quadrant background: stress > 0 AND productivity weakening = vulnerable zone.
   const zeroX = x.domain()[0] <= 0 && x.domain()[1] >= 0 ? x(0) : null;
@@ -321,7 +318,7 @@ export function renderLinkedScatter({
     .attr('r', (d) => size(finiteNumber(d.tas_change) ?? 0))
     .attr('fill', (d) => color(yVal(d)))
     .attr('stroke', (d) => d.cell_id === pinnedId || selectedIds.has(d.cell_id) ? '#111827' : 'rgba(255,255,255,0.9)')
-    .attr('stroke-width', (d) => d.cell_id === pinnedId || selectedIds.has(d.cell_id) ? 2.2 : 0.9)
+    .attr('stroke-width', (d) => d.cell_id === pinnedId || selectedIds.has(d.cell_id) ? 2.35 : 1.05)
     .attr('opacity', 0.9);
 
   const hoverHaloLayer = svg.append('g').attr('class', 'scatter-hover-halo').attr('pointer-events', 'none');
@@ -331,7 +328,7 @@ export function renderLinkedScatter({
       onHover?.(event, d);
       applyHover(d.cell_id);
       const target = d3.select(event.currentTarget);
-      target.attr('stroke', '#111827').attr('stroke-width', 2.2);
+      target.attr('stroke', '#111827').attr('stroke-width', 2.35);
       const r = +target.attr('r');
       hoverHaloLayer.selectAll('*').remove();
       hoverHaloLayer.append('circle')
@@ -355,7 +352,7 @@ export function renderLinkedScatter({
       const isSelected = d.cell_id === pinnedId || activeSelection.has(d.cell_id);
       d3.select(event.currentTarget)
         .attr('stroke', isSelected ? '#111827' : 'rgba(255,255,255,0.9)')
-        .attr('stroke-width', isSelected ? 2.2 : 0.9);
+        .attr('stroke-width', isSelected ? 2.35 : 1.05);
       hoverHaloLayer.selectAll('*').remove();
     })
     .on('click', (event, d) => onClick?.(d));

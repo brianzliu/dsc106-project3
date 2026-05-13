@@ -1,7 +1,12 @@
 import * as d3 from 'd3';
 import { divergingScale, neutralColor } from '../utils/scales.js';
 import { finiteNumber } from '../utils/dataTransforms.js';
-import { cellRadius, focusTransform, hexPoints, makeFeatureCollection, projectionFor } from './map.js';
+import {
+  attachZoomAndOverviewPanel,
+  makeFeatureCollection,
+  projectionFor,
+  gridMagnitudeRadiusScale
+} from './map.js';
 import { renderLegend } from './legend.js';
 import { getAmazonBoundary, getSouthAmerica } from '../utils/basemap.js';
 
@@ -79,23 +84,30 @@ function drawStressorMap({ svg, rows, width, height, activeKey, focus = null, ap
   });
 
   const cellsLayer = root.append('g');
-  cellsLayer.selectAll('polygon.grid-cell')
+
+  const magnitudes = features
+    .map((d) => Math.abs(finiteNumber(d.properties[activeKey]) ?? 0))
+    .filter((v) => Number.isFinite(v) && v > 0);
+  const maxMag = magnitudes.length ? d3.max(magnitudes) : 1;
+  const sizeScale = gridMagnitudeRadiusScale(maxMag);
+
+  cellsLayer.selectAll('circle.grid-cell')
     .data(features, (d) => d.id)
-    .join('polygon')
+    .join('circle')
     .attr('class', 'grid-cell')
-    .attr('points', (d) => {
-      const [cx, cy] = path.centroid(d);
-      return hexPoints(cx, cy, cellRadius(d, path));
+    .attr('cx', (d) => path.centroid(d)[0])
+    .attr('cy', (d) => path.centroid(d)[1])
+    .attr('r', (d) => {
+      const m = Math.abs(finiteNumber(d.properties[activeKey]) ?? 0);
+      return sizeScale(Number.isFinite(m) ? m : 0);
     })
     .attr('fill', (d) => {
       const value = finiteNumber(d.properties[activeKey]);
       return value === null ? neutralColor : scale(value);
     })
-    .attr('fill-opacity', (d) => inFocus(d.properties) ? 0.94 : 0.22)
-    .attr('stroke', (d) => d.id === handlers.pinnedId || handlers.selectedIds?.has?.(d.id) ? '#111827' : 'rgba(20,31,22,0.16)')
-    .attr('stroke-width', (d) => d.id === handlers.pinnedId || handlers.selectedIds?.has?.(d.id) ? 1.6 : 0.35)
-    .attr('stroke-linejoin', 'round')
-    .attr('vector-effect', 'non-scaling-stroke')
+    .attr('fill-opacity', (d) => inFocus(d.properties) ? 0.88 : 0.25)
+    .attr('stroke', (d) => d.id === handlers.pinnedId || handlers.selectedIds?.has?.(d.id) ? '#111827' : 'rgba(20,31,22,0.35)')
+    .attr('stroke-width', (d) => d.id === handlers.pinnedId || handlers.selectedIds?.has?.(d.id) ? 1.65 : 0.65)
     .on('pointerenter', (event, d) => handlers.onHover?.(event, d.properties))
     .on('pointermove', (event, d) => handlers.onHover?.(event, d.properties))
     .on('pointerleave', () => handlers.onLeave?.())
@@ -112,25 +124,21 @@ function drawStressorMap({ svg, rows, width, height, activeKey, focus = null, ap
       .attr('vector-effect', 'non-scaling-stroke');
   });
 
-  // Apply focus transform to the root group. Use a d3 transition only on step
-  // navigation; on resize-driven re-renders snap so the user doesn't see the
-  // map drift every time the window changes size.
-  if (focus?.regions) {
-    const focusFeatures = features.filter((feature) => focus.regions.includes(feature.properties.region));
-    if (focusFeatures.length) {
-      const target = focusTransform(focusFeatures, path, width, height);
-      const transformString = `translate(${target.x},${target.y}) scale(${target.k})`;
-      if (applyFocus) {
-        root.attr('transform', `translate(0,0) scale(1)`)
-          .transition()
-          .duration(640)
-          .ease(d3.easeCubicInOut)
-          .attr('transform', transformString);
-      } else {
-        root.attr('transform', transformString);
-      }
-    }
-  }
+  attachZoomAndOverviewPanel(svg, root, {
+    projection,
+    path,
+    width,
+    height,
+    rows,
+    features,
+    colorFor: (row) => {
+      const value = finiteNumber(row[activeKey]);
+      return value === null ? neutralColor : scale(value);
+    },
+    magnitudeFor: (row) => finiteNumber(row[activeKey]),
+    focus,
+    applyFocus
+  });
 
   return scale;
 }

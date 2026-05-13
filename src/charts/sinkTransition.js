@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { finiteNumber } from '../utils/dataTransforms.js';
 import { neutralColor } from '../utils/scales.js';
-import { cellRadius, hexPoints, makeFeatureCollection, projectionFor } from './map.js';
+import { cellRadius, hexPoints, makeFeatureCollection, projectionFor, gridMagnitudeRadiusScale } from './map.js';
 import { renderLegend } from './legend.js';
 import { getAmazonBoundary, getSouthAmerica } from '../utils/basemap.js';
 
@@ -145,28 +145,34 @@ export function renderSinkTransition({
     .attr('class', 'cells-layer')
     .style('opacity', 0);
 
-  cellsLayer.selectAll('polygon.grid-cell')
+  const magnitudes = features
+    .map((d) => Math.abs(d.properties.timeline_change ?? 0))
+    .filter((v) => Number.isFinite(v) && v > 0);
+  const maxMag = magnitudes.length ? d3.max(magnitudes) : 1;
+  const sizeScale = gridMagnitudeRadiusScale(maxMag);
+
+  cellsLayer.selectAll('circle.grid-cell')
     .data(features, (d) => d.id)
-    .join('polygon')
+    .join('circle')
     .attr('class', 'grid-cell')
-    .attr('points', (d) => {
-      const [cx, cy] = path.centroid(d);
-      return hexPoints(cx, cy, cellRadius(d, path));
+    .attr('cx', (d) => path.centroid(d)[0])
+    .attr('cy', (d) => path.centroid(d)[1])
+    .attr('r', (d) => {
+      const m = Math.abs(d.properties.timeline_change ?? 0);
+      return sizeScale(Number.isFinite(m) ? m : 0);
     })
     .attr('fill', (d) => {
       if (revealPhase < 2) return 'rgba(255,255,255,0)';
       const value = finiteNumber(d.properties.timeline_change);
       return value === null ? neutralColor : colorScale(value);
     })
-    .attr('fill-opacity', revealPhase < 2 ? 0 : 0.95)
+    .attr('fill-opacity', revealPhase < 2 ? 0 : 0.88)
     .attr('stroke', (d) => {
       if (revealPhase < 2) return 'rgba(255,255,255,0)';
       if (d.id === pinnedId || selectedIds.has(d.id)) return '#111827';
-      return 'rgba(20,31,22,0.18)';
+      return 'rgba(20,31,22,0.35)';
     })
-    .attr('stroke-width', (d) => (d.id === pinnedId || selectedIds.has(d.id) ? 1.6 : 0.4))
-    .attr('stroke-linejoin', 'round')
-    .attr('vector-effect', 'non-scaling-stroke')
+    .attr('stroke-width', (d) => (d.id === pinnedId || selectedIds.has(d.id) ? 1.65 : 0.65))
     .style('pointer-events', revealPhase < 2 ? 'none' : null)
     .on('pointerenter', (event, d) => onHover?.(event, d.properties))
     .on('pointermove', (event, d) => onHover?.(event, d.properties))
@@ -228,11 +234,14 @@ export function renderSinkTransition({
     hotspotFeatures.forEach((feature, index) => {
       const [cx, cy] = path.centroid(feature);
       if (!Number.isFinite(cx) || !Number.isFinite(cy)) return;
-      const r = cellRadius(feature, path);
+      const m = Math.abs(feature.properties.timeline_change ?? 0);
+      const r = sizeScale(Number.isFinite(m) ? m : 0);
 
-      hotspotLayer.append('polygon')
+      hotspotLayer.append('circle')
         .attr('class', 'sink-hotspot-outline')
-        .attr('points', hexPoints(cx, cy, r))
+        .attr('cx', cx)
+        .attr('cy', cy)
+        .attr('r', r + 2.5) // Slightly larger to act as an outline
         .attr('fill', 'none')
         .attr('stroke', '#8b1f0f')
         .attr('stroke-width', 2.6)
