@@ -91,9 +91,9 @@ export const storySteps = [
     focus: null,
     annotation: null,
     body: [
-      'When the landscape gets this hot and dry, the plants show the strain. A <strong>stressed, thirsty forest simply doesn\'t grow as well</strong>, which means it stops pulling as much carbon out of the air.',
-      'The stakes are huge: the intact Amazon holds <strong>billions of tons of carbon</strong>. But right now, the heavily stressed <strong>eastern basin — just a quarter of the total area — is responsible for nearly three-quarters</strong> of the region\'s carbon emissions, mostly from fires.',
-      'This chart checks the math: the places under the most climate stress are exactly where the <strong>forest\'s health is plummeting</strong>.'
+      'Each dot is one Amazon grid cell. <strong>Moving right</strong> means the cell experienced <strong>stronger combined climate stress</strong>: more warming, more dry-season drying, and weaker evaporative cooling where available.',
+      '<strong>Moving up</strong> means GPP declined more. In other words, the <strong>upper-right</strong> part of the chart shows cells where <strong>harsher climate conditions line up with weaker vegetation productivity</strong>.',
+      'The pattern is not meant to prove that climate stress alone caused the change in GPP. Instead, it shows whether the CMIP6 data are <strong>consistent with the mechanism</strong> described in the paper: <strong>hotter, drier regions</strong> tend to be where the forest’s carbon uptake becomes <strong>more fragile</strong>.'
     ]
   },
   {
