@@ -1,5 +1,9 @@
 # Amazon Climate-Stress Scrollytelling
 
+## Write up
+https://docs.google.com/document/d/10_D53uiqVVU8wZRlIv-LhMRPrzkj1C3Hb2o_H__wIAw/edit?tab=t.0
+
+## Details
 This project implements an interactive D3 v7 scrollytelling visualization about Amazon land conversion, dry-season warming, moisture stress, vegetation response, and carbon-sink fragility using preprocessed CMIP6 grid data.
 
 The scientific framing is inspired by Gatti et al. 2021, **“Amazonia as a carbon source linked to deforestation and climate change.”** The story intentionally focuses on the climate-stress mechanism emphasized by the paper: land conversion and deforestation are associated with hotter and drier regional conditions, especially in the dry season, and those stresses can weaken vegetation function and carbon uptake.
@@ -18,3 +22,5 @@ For a production build:
 ```bash
 npm run build
 ```
+
+
