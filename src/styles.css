@@ -254,6 +254,14 @@ body {
   background: var(--forest-mid);
   border-color: var(--forest-mid);
 }
+.btn-continue.is-pending {
+  opacity: 0.65;
+  cursor: wait;
+}
+.btn-continue.is-pending:hover {
+  background: var(--forest);
+  border-color: var(--forest);
+}
 
 /* ─── Viz panel ──────────────────────── */
 .viz-panel {

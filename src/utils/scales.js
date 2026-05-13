@@ -24,7 +24,10 @@ export function sequentialScale(rows, key, range = ['#f7fbff', '#08306b']) {
 export function divergingScale(rows, key) {
   const extent = extentFor(rows, key, [-1, 1]);
   const maxAbs = Math.max(Math.abs(extent[0] ?? 0), Math.abs(extent[1] ?? 0), 0.001);
-  return d3.scaleDiverging([-maxAbs, 0, maxAbs], d3.interpolateBrBG);
+  // Temperature: teal (BrBG end) = cooler/negative, brown (BrBG start) = warmer/positive.
+  const interpolate =
+    key === 'tas_change' ? (t) => d3.interpolateBrBG(1 - t) : d3.interpolateBrBG;
+  return d3.scaleDiverging([-maxAbs, 0, maxAbs], interpolate);
 }
 
 export function riskScale(rows) {

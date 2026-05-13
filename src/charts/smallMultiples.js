@@ -29,7 +29,7 @@ const stressors = [
     legendTitle: 'Mean dry-season temperature change',
     note: 'Where dry-season air temperatures have risen most between the early and late comparison periods.',
     calculation: 'Late-period mean dry-season temperature minus early-period mean dry-season temperature for each grid cell.',
-    analysis: 'Across the last four decades, <strong>dry-season</strong> average temperatures are up about <strong>+1.86 °C</strong> at the northern field site and about <strong>+2.54 °C</strong> at the southern one. In the <strong>two hottest months</strong> at the southern site, warming is closer to <strong>+3.07 °C</strong> — extra heat stacked on the part of the year when rain is already thinnest.'
+    analysis: 'Across the last four decades, <strong>dry-season</strong> average temperatures are up about <strong>+1.86 °C</strong> in the northern region and about <strong>+2.54 °C</strong> in the southern one. In the <strong>two hottest months</strong> in the southern region, warming is closer to <strong>+3.07 °C</strong> — extra heat stacked on the part of the year when rain is already thinnest.'
   },
   {
     key: 'pr_dry_change',
@@ -38,7 +38,7 @@ const stressors = [
     legendTitle: 'Dry-season precipitation change',
     note: 'Negative values mean less rain during the dry season — the part of the year when forests are already closest to water stress.',
     calculation: 'Late-period dry-season precipitation minus early-period dry-season precipitation for each grid cell.',
-    analysis: 'August–October rainfall is down roughly <strong>24%</strong> at the southern site and <strong>34%</strong> at the northern site over the same forty-year span. Even the <strong>less-cleared west</strong> has lost about <strong>20%</strong> of dry-season rain — a basin-wide pattern consistent with a <strong>soil-moisture cascade</strong>: drying and forest loss in the east can reduce how much moisture cycles back into the air for everyone downwind.'
+    analysis: 'August–October rainfall is down roughly <strong>24%</strong> in the southern region and <strong>34%</strong> in the northern region over the same forty-year span. Even the <strong>less-cleared west</strong> has lost about <strong>20%</strong> of dry-season rain — a basin-wide pattern consistent with a <strong>soil-moisture cascade</strong>: drying and forest loss in the east can reduce how much moisture cycles back into the air for everyone downwind.'
   },
   {
     key: 'mrsos_dry_change',
@@ -98,13 +98,13 @@ function focusForActiveKey(rows, activeKey) {
   const baseFocus = { padding: 48, duration: 700 };
   switch (activeKey) {
     case 'tas_change':
-      return { ...baseFocus, regions: ['southeast'], maxScale: 2.4 };
+      return { ...baseFocus, regions: ['southeast'], maxScale: 1.9 };
     case 'pr_dry_change':
-      return { ...baseFocus, regions: ['northwest'], maxScale: 2.6 };
+      return { ...baseFocus, regions: ['northwest'], maxScale: 2.0 };
     case 'mrsos_dry_change':
-      return { ...baseFocus, regions: ['northwest'], maxScale: 2.6 };
+      return { ...baseFocus, regions: ['northwest'], maxScale: 2.0 };
     case 'hurs_dry_change':
-      return { ...baseFocus, regions: ['southeast'], maxScale: 2.6 };
+      return { ...baseFocus, regions: ['southeast'], maxScale: 2.0 };
     default:
       return null;
   }

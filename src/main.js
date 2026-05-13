@@ -14,6 +14,10 @@ const state = {
   rows: [],
   activeStep: 0,
   introVisible: true,
+  /** True after grid + timeline load succeeded (viz can render). */
+  dataReady: false,
+  /** True if the initial dataset fetch failed; allows leaving the sink step. */
+  initialLoadFailed: false,
   comparisonPeriods: {
     early: 'Earlier period',
     late: 'Later period'
@@ -24,6 +28,7 @@ const state = {
   timeline: null,
   timelineByCell: new Map(),
   sinkRevealPhase: 2,
+  sinkIntroReady: false,
   smallMultiplesSub: 0,
   applyFocus: false
 };
@@ -134,11 +139,15 @@ function clearSinkRevealTimers() {
 
 function startSinkReveal() {
   clearSinkRevealTimers();
+  state.sinkIntroReady = false;
   state.sinkRevealPhase = 1;
   render();
+  syncContinueAvailability();
   sinkRevealTimers.push(window.setTimeout(() => {
     state.sinkRevealPhase = 2;
+    state.sinkIntroReady = true;
     render();
+    syncContinueAvailability();
   }, 2200));
 }
 
@@ -161,7 +170,7 @@ function goToStep(index) {
     updateNarrative();
     state.applyFocus = true;
     const stepId = storySteps[index]?.id;
-    if (!state.introVisible && stepId === 'sink-then-now') {
+    if (!state.introVisible && stepId === 'sink-then-now' && !state.sinkIntroReady) {
       startSinkReveal();
     } else {
       render();
@@ -169,6 +178,38 @@ function goToStep(index) {
     state.applyFocus = false;
     content.classList.remove('fade-out');
   }, 210);
+}
+
+function syncContinueAvailability() {
+  const continueBtn = document.getElementById('btn-continue');
+  if (!continueBtn) return;
+  const step = storySteps[state.activeStep];
+  const i = state.activeStep;
+  const total = storySteps.length;
+  const sinkAwaitingData =
+    step?.id === 'sink-then-now' &&
+    !state.dataReady &&
+    !state.initialLoadFailed;
+  const sinkAwaitingReveal =
+    step?.id === 'sink-then-now' &&
+    state.dataReady &&
+    !state.initialLoadFailed &&
+    !state.sinkIntroReady;
+
+  if (sinkAwaitingData || sinkAwaitingReveal) {
+    continueBtn.disabled = true;
+    continueBtn.classList.add('is-pending');
+    continueBtn.setAttribute('aria-label', sinkAwaitingData ? 'Loading data…' : 'Loading visualization…');
+    return;
+  }
+
+  continueBtn.disabled = false;
+  continueBtn.classList.remove('is-pending');
+  if (i === total - 1) {
+    continueBtn.setAttribute('aria-label', 'Open wrap-up overlay');
+  } else {
+    continueBtn.setAttribute('aria-label', 'Continue to next step');
+  }
 }
 
 function updateNarrative() {
@@ -199,6 +240,8 @@ function updateNarrative() {
     continueBtn.className = 'btn btn-continue';
     continueBtn.setAttribute('aria-label', 'Continue to next step');
   }
+
+  syncContinueAvailability();
 }
 
 function showOutro() {
@@ -767,9 +810,12 @@ Promise.all([
     early: summarizeYearRange(meta?.early_years, 'Earlier period'),
     late: summarizeYearRange(meta?.late_years, 'Later period')
   };
+  state.dataReady = true;
   render();
+  syncContinueAvailability();
 }).catch((error) => {
   console.error(error);
+  state.initialLoadFailed = true;
   d3.select('#narrative-content').html(`
     <h2 class="step-title">Data failed to load</h2>
     <div class="step-body">
@@ -778,5 +824,6 @@ Promise.all([
     </div>
   `);
   d3.select('#legend').html('<div class="legend-title">Load error</div><p class="legend-note">The app shell loaded, but the dataset request did not return JSON.</p>');
+  syncContinueAvailability();
 });
 window.addEventListener('resize', scheduleResizeRender);

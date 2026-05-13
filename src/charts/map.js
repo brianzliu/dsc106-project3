@@ -46,7 +46,7 @@ export function gridMagnitudeRadiusScale(maxMag, range = GRID_CELL_RADIUS_RANGE)
   return d3.scaleSqrt().domain([0, maxMag || 1]).range(range).clamp(true);
 }
 
-export function focusTransform(features, path, width, height, padding = 60, maxScale = 2.2) {
+export function focusTransform(features, path, width, height, padding = 60, maxScale = 1.7) {
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const feature of features) {
     const bounds = path.bounds(feature);
@@ -279,7 +279,7 @@ export function attachZoomAndOverviewPanel(svg, root, {
     const target = focusTransform(
       focusFeatures, path, width, height,
       focus?.padding ?? 60,
-      focus?.maxScale ?? 2.2
+      focus?.maxScale ?? 1.7
     );
     const duration = focus?.duration ?? 640;
     const selection = applyFocus
